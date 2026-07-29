@@ -1,0 +1,340 @@
+/* ============================================
+   SZCUTZ — Home Page Styles
+   ============================================ */
+
+.hero {
+  position: relative;
+  height: 92vh;
+  min-height: 620px;
+  padding-top: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--white);
+}
+
+/* Barely-there dot-grid texture — no color shift, just quiet depth */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(13, 13, 13, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 13, 13, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 35%, black 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 35%, black 0%, transparent 75%);
+}
+
+.hero-glow {
+  position: absolute;
+  z-index: 0;
+  top: -20%;
+  left: 50%;
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, 0);
+  background: radial-gradient(circle, rgba(13, 13, 13, 0.05) 0%, rgba(13, 13, 13, 0) 65%);
+  filter: blur(30px);
+  animation: auroraDrift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes auroraDrift {
+  0%   { transform: translate(-54%, -2%) scale(1); }
+  100% { transform: translate(-46%, 4%) scale(1.08); }
+}
+
+.hero .orb-field { z-index: 1; }
+.hero-content { position: relative; z-index: 3; text-align: center; }
+
+.hero .floating-tag.tag-1 { top: 10%;  left: 11%; animation-delay: 0s; }
+.hero .floating-tag.tag-2 { top: 12%;  right: 9%; animation-delay: -3s; }
+.hero .floating-tag.tag-3 { top: 64%;  left: 8%;  animation-delay: -2s; }
+.hero .floating-tag.tag-4 { top: 66%;  right: 11%; animation-delay: -1.5s; }
+
+@media (max-width: 768px) {
+  .hero .floating-tag { display: none; }
+}
+
+.hero-heading {
+  font-family: var(--font);
+  font-weight: 1000;
+  font-size: 6rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--black);
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .hero-heading{
+        font-size: 1.8rem;
+    }
+}
+
+.hero-subtext {
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--gray-700);
+  max-width: 420px;
+  margin: 0 auto 32px;
+}
+
+.btn .btn-arrow {
+  display: inline-block;
+  transition: transform 200ms ease;
+}
+.btn:hover .btn-arrow,
+.btn:active .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- Section shell ---------- */
+.section {
+  position: relative;
+  padding: 96px 0;
+  overflow: hidden;
+}
+
+.section-head {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto 56px;
+}
+
+.section-head h2 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.section-head p {
+  color: var(--gray-700);
+  margin-top: 14px;
+}
+
+/* ---------- Services ---------- */
+.services-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.service-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  padding: 40px;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.service-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -20px rgba(13, 13, 13, 0.15);
+}
+
+.service-card h3 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+}
+
+.service-meta {
+  display: flex;
+  gap: 18px;
+  margin: 10px 0 24px;
+  color: var(--gray-500);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.service-price {
+  color: var(--black);
+}
+
+.service-card .btn {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Gallery slider ---------- */
+
+/* #gallery{
+  padding-top: 0px;
+} */
+
+.section-head p{
+  font-size: 0.9rem;
+}
+
+/* home.css mein — .stack-wrap ka z-index badhao */
+.stack-wrap {
+  position: relative;
+  z-index: 3; /* pehle 1 tha — ab canvas (z-index: 2) se upar hai */
+  --stack-size: 380px;
+  max-width: min(var(--stack-size), 82vw);
+  margin: 0 auto;
+}
+
+.card-stack,
+.ghost-layer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+}
+
+.ghost-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* purely visual — never blocks drag/tap on real cards */
+}
+
+.card-stack {
+  touch-action: pan-y;
+}
+
+.stack-card {
+  position: absolute;
+  inset: 0;
+  /* 🔧 More iPhone-like: bigger continuous radius */
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(13, 13, 13, 0.10);
+  background: var(--white);
+  /* Tight contact shadow + soft ambient shadow = "popped up" feel */
+  box-shadow:
+    0 1px 2px rgba(13, 13, 13, 0.06),
+    0 14px 26px -10px rgba(13, 13, 13, 0.20),
+    0 32px 60px -28px rgba(13, 13, 13, 0.22);
+  cursor: grab;
+  user-select: none;
+
+  transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0deg)) scale(var(--scale, 1));
+  opacity: var(--op, 1);
+  filter: blur(var(--blur, 0px));
+  z-index: var(--z, 1);
+  /* 🔧 Snappier — was 320ms/no separate filter timing */
+  transition: transform 240ms cubic-bezier(.22, .85, .32, 1), opacity 240ms ease, filter 180ms ease;
+}
+
+.stack-card.is-ghost {
+  transition: none; /* JS sets this right before animating out */
+}
+
+.stack-card:active { cursor: grabbing; }
+
+.stack-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.stack-caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 16px 18px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.stack-hint {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 0.8rem;
+  color: var(--gray-500);
+}
+
+@media (max-width: 480px) {
+  .stack-wrap { --stack-size: 260px; }
+}
+/* ---------- About ---------- */
+.about {
+  background: var(--white);
+}
+
+.about-grid {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.about-grid h2 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+.about-grid p {
+  color: var(--gray-700);
+  margin-bottom: 16px;
+  max-width: 480px;
+}
+
+.about-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 28px;
+}
+
+.about-stats div strong {
+  display: block;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: 2.2rem;
+  font-variant-numeric: tabular-nums; /* 🔧 digits same width rakhte hain, counting ke waqt text kaanpta/shift nahi hota */
+}
+
+.about-stats div span {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* home.css mein — about-photo ko explicitly stack context do */
+.about-photo {
+  position: relative;
+  z-index: 3; /* naya add karo — canvas se upar */
+  aspect-ratio: 5 / 6;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.about-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}

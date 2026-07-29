@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book an Appointment — SZCUTZ</title>
+  <link rel="stylesheet" href="../../general/css/style.css" />
+  <link rel="stylesheet" href="../css/appoinment.css" />
+</head>
+<body>
+
+  <!-- ===================== Header (same as home page) ===================== -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="../../home/html/home.html" class="brand">
+        <img src="../../../assets/logo_image/logo_refine_pro_max-removebg.png" alt="SZCUTZ" />
+      </a>
+      <nav class="main-nav">
+        <a href="../../home/html/home.html#about">About Us</a>
+        <a href="https://instagram.com/szcutz" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://maps.app.goo.gl/AUsCCfU4553HMvuc7" target="_blank" rel="noopener noreferrer">Google Maps</a>
+        <a href="#" data-open-booking-lookup>Check Booking</a>
+      </nav>
+      <div class="nav-cta-group">
+        <a href="../html/appoinment.html?type=appointment">Appointment</a>
+        <a href="../html/appoinment.html?type=home_service">Home Service</a>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    </div>
+  </header>
+
+  <main class="booking-page">
+    <div class="container">
+
+      <!-- ===================== Page intro ===================== -->
+      <div class="page-intro" data-reveal="load" data-delay="0">
+        <span class="eyebrow" data-reveal="load" data-delay="0">Book Now</span>
+        <h1 class="page-heading" data-reveal="load" data-delay="120">Grab Your Slot</h1>
+        <p class="page-subtext" data-reveal="load" data-delay="240">Pick a service, pick a time, show up looking right.</p>
+      </div>
+
+      <!-- ===================== Type toggle ===================== -->
+      <div class="type-toggle" id="typeToggle" data-reveal="load" data-delay="320">
+        <button type="button" class="type-option" id="appointmentBtn" data-type="appointment">At the Shop</button>
+        <button type="button" class="type-option" id="homeserviceBtn" data-type="home_service">Home Service</button>
+      </div>
+
+      <!-- ===================== Booking form card ===================== -->
+      <div class="form-card" id="bookingCard" data-reveal="load" data-delay="400">
+        <form id="bookingForm" novalidate>
+
+          <div class="form-grid two-col">
+            <div class="form-group">
+              <label for="fullName">Name</label>
+              <input type="text" id="fullName" name="fullName" placeholder="Your name" required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="03XX XXXXXXX" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="service">Select Service</label>
+            <select id="service" name="service" required>
+              <option value="" disabled selected>Choose a service</option>
+              <!-- options injected by appointment.js from GET /api/user/services -->
+            </select>
+          </div>
+
+          <div class="form-grid two-col">
+            <div class="form-group">
+              <label for="date">Date</label>
+              <select id="date" name="date" required>
+                <option value="" disabled selected>Choose a date</option>
+                <!-- options injected by appointment.js from GET /api/user/dates?type=... -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="time">Time</label>
+              <select id="time" name="time" required disabled>
+                <option value="" disabled selected>Pick a date first</option>
+                <!-- options injected by appointment.js from GET /api/user/times/:dateId -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Only shown when Home Service is selected -->
+          <div class="form-group" id="addressGroup" hidden>
+            <label for="address">Your Address</label>
+            <textarea id="address" name="address" rows="2" placeholder="House #, street, area — wherever the barber needs to reach"></textarea>
+          </div>
+
+          <div class="form-footer-row">
+            <div class="amount-box">
+              <span class="eyebrow">Amount</span>
+              <span class="amount-value" id="amountValue">PKR —</span>
+            </div>
+
+            <!-- Only shown for shop appointments -->
+            <a href="https://maps.app.goo.gl/AUsCCfU4553HMvuc7" target="_blank" rel="noopener" class="location-link" id="locationLink">
+              📍 View Shop on Google Maps →
+            </a>
+          </div>
+
+          <div class="form-message" id="formMessage" role="alert" hidden></div>
+
+          <button type="submit" class="btn btn-primary btn-submit">
+            Confirm Booking
+            <span class="btn-arrow">→</span>
+          </button>
+        </form>
+
+        <!-- Shown after a successful (mock) submit -->
+        <div class="confirmation-panel" id="confirmationPanel" hidden>
+          <span class="confirm-check">✓</span>
+          <h3>You're Booked</h3>
+          <p id="confirmationSummary"></p>
+          <button type="button" class="btn btn-outline" id="bookAnotherBtn">Book Another Slot</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===================== Footer (same as home page) ===================== -->
+  <footer class="site-footer" id="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="../../../assets/logo_image/logo_refine_pro_max-removebg.png" alt="SZCUTZ" />
+          <p>Walk-in and appointment barbershop — book a slot, skip the wait.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <a href="../html/appoinment.html?type=home_service">Home Service</a>
+          <a href="../html/appoinment.html?type=appointment">Book Appointment</a>
+          <a href="../../home/html/home.html#services">Services</a>
+        </div>
+        <div class="footer-col">
+          <h4>Visit</h4>
+          <p>+92 300 0000000</p>
+          <a href="https://maps.app.goo.gl/AUsCCfU4553HMvuc7" target="_blank" rel="noopener">Get Directions →</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 SZCUTZ. All rights reserved.</span>
+        <span>Karachi, Pakistan</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../general/js/particles.js"></script>
+  <script src="../../general/js/reveal.js"></script>
+  <script src="../../general/js/booking-lookup.js"></script>
+  <script src="../js/appoinment.js"></script>
+</body>
+</html>

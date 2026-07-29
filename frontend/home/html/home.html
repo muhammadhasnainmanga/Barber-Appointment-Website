@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SZCUTZ — Barbershop</title>
+  <link rel="stylesheet" href="../css/home.css" />
+  <link rel="stylesheet" href="../../general/css/style.css" />
+</head>
+<body>
+
+  <!-- ===================== Header (floating glass pill) ===================== -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="../html/home.html" class="brand">
+        <img src="../../../assets/logo_image/logo_refine_pro_max-removebg.png" alt="SZCUTZ" />
+      </a>
+      <nav class="main-nav">
+        <a href="#about">About Us</a>
+        <a href="https://www.instagram.com/szcutz/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://maps.app.goo.gl/AUsCCfU4553HMvuc7" target="_blank" rel="noopener noreferrer">Google Maps</a>
+        <a href="#" data-open-booking-lookup>Check Booking</a>
+      </nav>
+      <div class="nav-cta-group">
+        <a href="../../../frontend/appointment/html/appoinment.html?type=home_servie">Appointment</a>
+        <a href="../../../frontend/appointment/html/appoinment.html?type=appoinment">Home Service</a>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    </div>
+  </header>
+
+  <!-- ===================== Hero (minimal — ambient bg + one CTA) ===================== -->
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="orb-field">
+    <span class="floating-tag tag-1">Fade</span>
+    <span class="floating-tag tag-2">Taper</span>
+    <span class="floating-tag tag-3">Buzz Cut</span>
+    <span class="floating-tag tag-4">Shave</span>
+  </div>
+
+    <div class="hero-content">
+      <span class="eyebrow" data-reveal="load" data-delay="0">SZCUTZ</span>
+      <h1 class="hero-heading" data-reveal="load" data-delay="120">Time for a Trim?</h1>
+      <p class="hero-subtext" data-reveal="load" data-delay="240">Sharp fades. Clean lines. Zero waiting around.</p>
+      <a href="../../../frontend/appointment/html/appoinment.html?type=appoinment" class="btn btn-primary" data-reveal="load" data-delay="360">
+        Book Appointment
+        <span class="btn-arrow">→</span>
+      </a>
+  </div>
+</section>
+
+  <div class="container"><div class="hairline-fade"></div></div>
+
+  <!-- ===================== Gallery (moved out of hero) ===================== -->
+<section class="section" id="gallery">
+  <div class="container">
+    <div class="section-head" data-reveal="scroll">
+      <span class="eyebrow">Recent Work</span>
+      <h2>Take a Look Around</h2>
+      <p>A few of the cuts walking out of the chair lately — swipe through.</p>
+    </div>
+
+    <div class="stack-wrap">
+      <div class="card-stack" id="cardStack"></div>
+      <div class="ghost-layer" id="ghostLayer"></div>
+      <p class="stack-hint">Swipe or tap to see more →</p>
+    </div>
+  </div>
+</section>
+
+  <div class="container"><div class="hairline-fade"></div></div>
+
+  <!-- ===================== Services ===================== -->
+  <section class="section" id="services">
+    <div class="orb-field">
+      <span class="orb" style="width:320px;height:320px;bottom:-100px;left:-100px;"></span>
+    </div>
+    <div class="container">
+      <div class="section-head" data-reveal="scroll">
+        <span class="eyebrow">What we offer</span>
+        <h2>Services</h2>
+        <p>Every service, one clear price. No surprises at the chair.</p>
+      </div>
+      <div class="services-grid">
+        <!-- cards injected by home.js -->
+      </div>
+    </div>
+  </section>
+
+  <div class="container"><div class="hairline-fade"></div></div>
+
+  <!-- ===================== About ===================== -->
+  <section class="section about" id="about">
+    <div class="orb-field">
+      <span class="orb" style="width:280px;height:280px;top:20%;right:-80px;"></span>
+    </div>
+    <div class="container about-grid">
+      <div class="about-photo" id="aboutPhoto">
+        <img src="../../../assets/extra/about_image3.jpg" alt="Barber finishing a fade haircut in the chair" />
+      </div>
+      <div>
+        <span class="eyebrow">The Shop</span>
+        <h2>Built on the Basics, Done Right</h2>
+        <p>SZCUTZ started with one chair and one rule: get the fade right, every time. That's still the whole idea — sharp lines, honest prices, and a barber who remembers how you like it.</p>
+        <p>No memberships, no upsells. Book a slot, get in the chair, walk out looking sharp.</p>
+        <!-- Placeholder stats — swap for real numbers whenever you have them -->
+        <div class="about-stats">
+          <div><strong data-target="500" data-suffix="+">0</strong><span>Cuts Delivered</span></div>
+          <div><strong data-target="1">0</strong><span>Chairs</span></div>
+          <div><strong data-target="7">0</strong><span>Days Open</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Footer ===================== -->
+  <footer class="site-footer" id="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="../html/home.html" class="brand">
+            <img src="../../../assets/logo_image/logo_refine_pro_max-removebg.png" alt="SZCUTZ" />
+          </a>
+          <p>Walk-in and appointment barbershop — book a slot, skip the wait.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <a href="../../../frontend/appointment/html/appoinment.html?type=home_servie">Home Service</a>
+          <a href="../../../frontend/appointment/html/appoinment.html?type=appoinment">Book Appointment</a>
+          <a href="#services">Services</a>
+        </div>
+        <div class="footer-col">
+          <h4>Visit</h4>
+          <p>+92 300 0000000</p>
+          <!-- Replace with the real Google Maps link -->
+          <a href="https://maps.app.goo.gl/AUsCCfU4553HMvuc7" target="_blank" rel="noopener">Get Directions →</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 SZCUTZ. All rights reserved.</span>
+        <span>Karachi, Pakistan</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/stats-counter.js"></script>
+  <script src="../js/card-stack.js"></script>
+  <script src="../../general/js/particles.js"></script>
+  <script src="../../general/js/reveal.js"></script>
+  <script src="../../general/js/booking-lookup.js"></script>
+  <script src="../js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+/* ============================================
+   SZCUTZ Admin — Shared base styles
+   Same tokens/typeface/buttons as the customer site,
+   kept utility-focused — no ambient orbs/floating nav here.
+   ============================================ */
+
+@font-face {
+  font-family: 'Inter Sans';
+  src: url('../assets/fonts/inter-sans-regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Sans';
+  src: url('../assets/fonts/inter-sans-medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Sans';
+  src: url('../assets/fonts/inter-sans-semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Sans';
+  src: url('../assets/fonts/inter-sans-bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Sans';
+  src: url('../assets/fonts/inter-sans-black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --black: #0d0d0d;
+  --white: #ffffff;
+  --off-white: #fafafa;
+  --border: rgba(13, 13, 13, 0.10);
+  --border-strong: rgba(13, 13, 13, 0.22);
+  --gray-500: #8a8a8a;
+  --gray-700: #3d3d3d;
+
+  --font: 'Inter Sans', -apple-system, sans-serif;
+
+  --max-width: 1200px;
+  --radius-lg: 32px;
+  --radius-md: 20px;
+  --radius-sm: 12px;
+  /* 🔧 Single source of truth for button/control radius — matches the
+     11–14px you've been applying site-wide. Change once, applies everywhere. */
+  --radius-btn: 13px;
+  --transition: 200ms ease;
+
+  /* Status colors — used by the bookings status selector (3 states only) */
+  --pending: #92720a;
+  --pending-bg: #fef9e7;
+  --confirmed: #1e7a34;
+  --confirmed-bg: #eaf6ec;
+  --cancelled: #b3261e;
+  --cancelled-bg: #fdecea;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  color: var(--black);
+  background: var(--off-white);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--font); }
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ---------- Buttons (radius unified with the rest of the site) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid var(--black);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+.btn:focus-visible { 
+  outline: 2px solid var(--black); 
+  outline-offset: 3px; 
+}
+
+.btn-primary { 
+  background: var(--black); 
+  color: var(--white); 
+}
+
+
+.btn-primary:hover,
+.btn-primary:active {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(13, 13, 13, 0.06), 0 10px 26px -6px rgba(13, 13, 13, 0.22);
+}
+.btn-outline { 
+  background: var(--white); 
+  color: var(--black); 
+}
+
+.btn-outline:hover { 
+  background: var(--black); 
+  color: var(--white); 
+}
+
+.btn-danger {
+  background: var(--white);
+  color: var(--cancelled);
+  border-color: var(--cancelled);
+}
+.btn-danger:hover { background: var(--cancelled-bg); }
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-btn);
+}
+
+/* ---------- Form fields ---------- */
+.form-group { margin-bottom: 18px; }
+
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  font-family: var(--font);
+  font-size: 0.92rem;
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  transition: border-color var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--border-strong);
+}
+
+/* ---------- Eyebrow ---------- */
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+}
+
+/* Error message on login */
+.form-message {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff4f4;
+  border: 1px solid #f0bdbd;
+  color: #8a2b2b;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}

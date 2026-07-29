@@ -1,0 +1,579 @@
+/* ============================================
+   SZCUTZ Admin — Dashboard (sidebar layout)
+   ============================================ */
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  top: 0;
+}
+
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+
+.side-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-btn);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+
+.side-nav-item:hover { background: var(--off-white); }
+
+.side-nav-item.is-active {
+  background: var(--black);
+  color: var(--white);
+}
+
+.nav-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+
+/* ---------- Accordion (Bookings / Slots) ---------- */
+.side-nav-accordion { margin: 2px 0; }
+
+.accordion-toggle .label-text { flex: 1; }
+
+.chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 220ms ease;
+}
+
+.accordion-toggle.is-open .chevron {
+  transform: rotate(90deg);
+}
+
+.accordion-toggle.has-active-child:not(.is-active) {
+  color: var(--black);
+}
+
+.accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 260ms ease;
+}
+
+.side-nav-sub {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 14px 9px 40px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-btn);
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+
+.side-nav-sub:hover { background: var(--off-white); }
+
+.side-nav-sub.is-active {
+  background: var(--off-white);
+  color: var(--black);
+  font-weight: 700;
+}
+
+.side-nav-sub .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---------- Sidebar profile (bottom, click opens popup) ---------- */
+.sidebar-profile-wrap {
+  position: relative;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: var(--black);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+
+.sidebar-profile:hover,
+.sidebar-profile:active {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(13, 13, 13, 0.06), 0 10px 26px -6px rgba(13, 13, 13, 0.22);
+}
+
+.sidebar-profile img{
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--white);
+  border: var(--gray-700);
+}
+
+.sidebar-profile .chevron {
+    width: 18px;
+    height: 18px;
+    color: white;
+    transform: rotate(-90deg); /* Up arrow */
+}
+
+.sidebar-profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex: 1;
+  color: var(--white);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-popup {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 12px;
+  right: 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  box-shadow: 0 12px 30px -10px rgba(13, 13, 13, 0.18);
+  padding: 6px;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.profile-popup.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.profile-popup button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--black);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.profile-popup button:hover { background: var(--off-white); }
+.profile-popup button.danger { color: var(--cancelled); }
+
+/* ---------- Main content ---------- */
+.admin-content {
+  flex: 1;
+  min-width: 0;
+  padding: 24px 32px 80px;
+}
+
+.content-header {
+  height: 150px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 28px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.content-header-logo {
+  width: 70px;
+  height: 80x;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.content-header h1 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.content-header span {
+  font-size: 0.82rem;
+  color: var(--gray-500);
+}
+
+/* ---------- Views ---------- */
+.view { display: none; }
+.view.is-active { display: block; }
+
+.view-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.view-head h2 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.7rem;
+}
+
+.placeholder-card {
+  background: var(--white);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--gray-500);
+}
+
+/* ---------- Date-range filter (Bookings) ---------- */
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-filter input[type="date"] {
+  padding: 9px 12px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  background: var(--white);
+}
+
+.date-filter span { font-size: 0.8rem; color: var(--gray-500); }
+
+.date-filter-clear {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---------- Cards / tables (shared across views) ---------- */
+.data-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.data-table { width: 100%; border-collapse: collapse; }
+
+.data-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--off-white);
+}
+
+.data-table td {
+  padding: 14px 18px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table .cell-muted { color: var(--gray-500); }
+
+.empty-row td { text-align: center; padding: 40px 18px; color: var(--gray-500); }
+
+@media (max-width: 900px) {
+  .data-card { overflow-x: auto; }
+  .data-table { min-width: 720px; }
+}
+
+.status-select {
+  padding: 8px 10px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gray-500);
+  background: var(--white);
+  cursor: pointer;
+}
+.status-select.pending   { border-left-color: var(--pending); }
+.status-select.confirmed { border-left-color: var(--confirmed); }
+.status-select.cancelled { border-left-color: var(--cancelled); }
+
+/* ---------- Add-new forms ---------- */
+.add-form-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.add-form-card h3 {
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.add-form-card .eyebrow { 
+  display: block; 
+  margin-bottom: 16px; 
+  letter-spacing: 0.05rem;
+  font-size: 0.79rem;
+  text-transform: none;
+}
+
+.add-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.add-form-grid .form-group { margin-bottom: 0; }
+
+.row-actions { display: flex; gap: 8px; }
+.row-actions button[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ---------- Type toggle (Shop / Home Service) ---------- */
+.type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.type-toggle button {
+  padding: 10px 20px;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.type-toggle button.is-active {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
+}
+
+/* ---------- Day-picker chips (Default Schedule) ---------- */
+.day-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.day-chip {
+  padding: 8px 14px;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.day-chip.is-active {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
+}
+
+.day-chip.all-days {
+  border-style: dashed;
+}
+
+/* ---------- Generated slots preview (Default Schedule) ---------- */
+.slot-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-chip {
+  padding: 6px 12px;
+  border-radius: var(--radius-btn);
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+/* ---------- Weekly availability grid (Blocked Slots view) ---------- */
+.weekly-grid-wrap { overflow-x: auto; }
+
+.weekly-grid {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.weekly-grid th, .weekly-grid td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: center;
+  font-size: 0.78rem;
+}
+
+.weekly-grid th {
+  background: var(--off-white);
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.weekly-grid td.time-label {
+  background: var(--off-white);
+  font-weight: 600;
+  color: var(--gray-700);
+  white-space: nowrap;
+}
+
+.grid-open { color: var(--confirmed); font-weight: 700; }
+.grid-blocked { color: var(--gray-500); }
+
+/* ---------- Modal (Change Password) ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(13, 13, 13, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.modal-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+.modal-card {
+  width: min(400px, 90vw);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 32px;
+  position: relative;
+}
+
+.modal-card h3 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin: 4px 0 20px;
+}
+
+.modal-card .btn { width: 100%; margin-top: 4px; }
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    width: 72px;
+  }
+  .sidebar-profile-name,
+  .side-nav-item span.label-text,
+  .side-nav-group-label,
+  .side-nav-sub span.label-text {
+    display: none;
+  }
+}
+/* ---------- Reveal animation (fade + rise) ---------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 550ms ease, transform 550ms cubic-bezier(.22, .85, .32, 1);
+}
+ 
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

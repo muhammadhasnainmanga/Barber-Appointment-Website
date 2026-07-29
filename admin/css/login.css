@@ -1,0 +1,65 @@
+/* ============================================
+   SZCUTZ Admin — Login page
+   ============================================ */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+}
+
+.login-logo {
+  height: 30px;
+  width: auto;
+  margin: 0 auto 20px;
+}
+
+.login-card h1 {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 2.2rem;
+  margin: 8px 0 10px;
+}
+
+.login-subtext {
+  color: var(--gray-700);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+
+.login-card img{
+    height: 70px;
+    width: 85px;
+    margin-bottom: 0px;
+}
+
+.login-card form {
+  text-align: left;
+}
+
+.login-submit {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.login-error {
+  background: var(--cancelled-bg);
+  color: var(--cancelled);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: var(--radius-btn);
+  margin-bottom: 16px;
+}
