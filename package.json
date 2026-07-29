@@ -7,7 +7,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon backend/index.js"
+    "start": "nodemon backend/index.js",
+    "db": "nodemon backend/database/connect.db.js"
+
   },
   "dependencies": {
     "cors": "^2.8.6",
