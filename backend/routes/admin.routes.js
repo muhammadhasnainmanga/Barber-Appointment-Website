@@ -1,8 +1,10 @@
 const express = require('express');
 const AdminRouter = express.Router();
-const CheckLogin = require('../controllers/admin.controller.js');
+const {checkLogin, logoutUser} = require('../controllers/admin.controller.js');
 
 
-AdminRouter.route('/login').post(CheckLogin);
+AdminRouter.route('/login').post(checkLogin);
+
+AdminRouter.route('/logout').post(logoutUser);
 
 module.exports = AdminRouter;

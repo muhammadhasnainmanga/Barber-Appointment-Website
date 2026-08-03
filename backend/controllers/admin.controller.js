@@ -1,11 +1,12 @@
 const bcrypt = require('bcrypt');
 const cookieparser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 const ApiError = require('../utils/ApiError.utils.js');
 const {GetDb} = require('../database/connect.db.js');
 const {generateAccessAndRefreshToken} = require('../services/auth.service.js');
 
-
-const CheckLogin = async (req,res) => {
+//Login
+const checkLogin = async (req,res) => {
     try {
         const {Username , Password} = req.body;
 
@@ -42,6 +43,7 @@ const CheckLogin = async (req,res) => {
             sameSite: 'none',   // 🔧 cross-origin (5500 → 4000) ke liye zaroori
         };
 
+        //response back to frontend
         res.status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
@@ -56,4 +58,48 @@ const CheckLogin = async (req,res) => {
     }
 }
 
-module.exports = CheckLogin;
+
+//Logout
+const logoutUser = async (req, res) => {
+    try {
+        const refreshToken = req.cookies?.refreshToken;
+    
+        if(!refreshToken){
+            throw new ApiError(401, "User is not logged in - no Refresh token found !");
+        }
+
+        const db = GetDb();
+
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        await db.promise().query(
+            `UPDATE admin SET RefreshToken = NULL WHERE id = ?`,
+            [decoded.id]
+        );
+
+        const options = {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',   // 🔧 cross-origin (5500 → 4000) ke liye zaroori
+        };
+
+        //response back to frontend
+        res.status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json({
+            message: "User logged out successfully"
+        });
+
+
+    } catch (error) {
+        res.status(error.statusCode || 500).json({message: error.message});
+        console.log(error.message);
+    }
+}
+
+
+
+module.exports = {
+    checkLogin,
+    logoutUser
+}
