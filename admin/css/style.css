@@ -187,7 +187,7 @@ button { font-family: var(--font); }
 }
 
 /* Error message on login */
-.form-message {
+/* .form-message {
   margin-top: 16px;
   margin-bottom: 16px;
   padding: 12px 14px;
@@ -197,4 +197,4 @@ button { font-family: var(--font); }
   color: #8a2b2b;
   font-size: 0.92rem;
   line-height: 1.5;
-}
+} */

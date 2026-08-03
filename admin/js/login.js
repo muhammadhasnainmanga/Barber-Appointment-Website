@@ -10,48 +10,63 @@ const loginError = document.getElementById('loginError');
 const formMessage = document.getElementById('formMessage');
 
 
-function showFormMessage(message) {
+function showFormMessage(message, type = 'error') {
     formMessage.textContent = message;
+    formMessage.classList.remove('form-message-success', 'form-message-error');
+
+    if (type === 'success') {
+        formMessage.classList.add('form-message-success');
+    } else {
+        formMessage.classList.add('form-message-error');
+    }
+
     formMessage.hidden = false;
 }
 
 function clearFormMessage() {
     formMessage.textContent = '';
+    formMessage.classList.remove('form-message-success', 'form-message-error');
     formMessage.hidden = true;
 }
 
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearFormMessage();
 
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+    const Username = document.getElementById('username').value.trim();
+    const Password = document.getElementById('password').value.trim();
 
-  // ---- MOCK CHECK — swap this whole if/else for a fetch() call ----
-  //
-  // const res = await fetch('/api/admin/login', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ username, password }),
-  // });
-  // if (!res.ok) { loginError.hidden = false; return; }
-  // const { token, username: returnedName } = await res.json();
-  // localStorage.setItem('szcutz_admin_token', token);
-  // localStorage.setItem('szcutz_admin_username', returnedName);
-  // window.location.href = 'dashboard.html';
+    if(!Username || !Password){
+            showFormMessage('Either username or password is empty', 'error');
+            return;
+    }
 
-  if (username === 'admin' && password === 'admin123') {
-    localStorage.setItem('szcutz_admin_token', 'mock-token');
-    // Saved here so dashboard.html can greet "Hi, {username}" instead
-    // of a hardcoded "Hi, Admin".
-    localStorage.setItem('szcutz_admin_username', username);
-    window.location.href = '../html/dashboard.html';
-  } else {
-     if(username === '' || password === ''){
-            showFormMessage('Either username or password is empty');
+    try {
+        const response = await fetch('http://localhost:4000/api/v1/admin/login', {
+            method: 'POST',
+            credentials: "include",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Username, Password })
+        });
+
+        const result = await response.json();
+
+        if(response.ok){
+            // Saved here so dashboard.html can greet "Hi, {username}" instead
+            // of a hardcoded "Hi, Admin".
+            localStorage.setItem('szcutz_admin_token', 'mock-token');
+            localStorage.setItem('szcutz_admin_username', Username);
+            showFormMessage('Loading...', 'success');
+            setTimeout(() => {
+                window.location.href = '../html/dashboard.html';
+            }, 1200);
             return;
         }else{
-            showFormMessage('Incorrect Username or Password');
+            showFormMessage('Incorrect Username or Password', 'error');
             return;
         }
-  }
+    } catch (error) {
+        showFormMessage('Server request failed...', 'error');
+        console.log(error.message);
+    }
 });

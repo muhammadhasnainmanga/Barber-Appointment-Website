@@ -54,12 +54,24 @@
   margin-top: 6px;
 }
 
-.login-error {
-  background: var(--cancelled-bg);
-  color: var(--cancelled);
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 10px 14px;
-  border-radius: var(--radius-btn);
+.form-message {
+  margin-top: 16px;
   margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff4f4;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.form-message.form-message-error {
+  border: 1px solid #f0bdbd;
+  background: #f5eaea;
+  color: #8a2b2b;
+}
+
+.form-message.form-message-success {
+  border: 1px solid #bdf0ce;
+  background: #e7efe8;
+  color: #355b45;
 }

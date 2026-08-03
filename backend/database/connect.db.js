@@ -1,5 +1,6 @@
 require('dotenv').config();
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
+const bcrypt = require('bcrypt');
 
 let db;
 
@@ -14,6 +15,9 @@ async function ConnectDb() {
         })
 
         console.log("Mysql connected successfully");
+        console.log(`Mysql Running on Port ${process.env.DB_PORT}`);
+
+        // console.log(db);
         return db;
     } catch (error) {
         console.log(error, "Database connection failed");
