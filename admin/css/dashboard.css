@@ -398,11 +398,6 @@
   margin-bottom: 18px;
 }
 
-.add-form-grid .form-group { margin-bottom: 0; }
-
-.row-actions { display: flex; gap: 8px; }
-.row-actions button[disabled] { opacity: 0.4; cursor: not-allowed; }
-
 /* ---------- Type toggle (Shop / Home Service) ---------- */
 .type-toggle {
   display: flex;

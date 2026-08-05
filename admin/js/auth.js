@@ -23,15 +23,14 @@ async function logout() {
       if(response.ok){
           localStorage.removeItem('szcutz_admin_token');
           localStorage.removeItem('szcutz_admin_username');
-          setTimeout(() => {
-              window.location.href = '../html/login.html';
-          }, 1000);
+          window.location.href = '../html/login.html';
           return;
       }else{
         return null;
       }
       
   } catch (error) {
+
       console.log(error);
   }
 }

@@ -2,7 +2,28 @@
 // SZCUTZ Admin — Dashboard logic (sidebar version)
 // MOCK DATA everywhere — every backend-bound action is commented
 // with the real route it becomes.
+
+
 // ============================================
+function showFormMessage(message, type = 'error') {
+    formMessage.textContent = message;
+    formMessage.classList.remove('form-message-success', 'form-message-error');
+
+    if (type === 'success') {
+        formMessage.classList.add('form-message-success');
+    } else {
+        formMessage.classList.add('form-message-error');
+    }
+
+    formMessage.hidden = false;
+}
+
+function clearFormMessage() {
+    formMessage.textContent = '';
+    formMessage.classList.remove('form-message-success', 'form-message-error');
+    formMessage.hidden = true;
+}
+
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 const DAY_LABELS = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
@@ -38,24 +59,79 @@ document.getElementById('closePasswordModal').addEventListener('click', () => {
   passwordModal.classList.remove('is-open');
 });
 
-// MOCK — becomes: PATCH /api/admin/password  { currentPassword, newPassword }
-document.getElementById('passwordForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const current = document.getElementById('currentPassword').value;
-  const next = document.getElementById('newPassword').value;
-  const confirm = document.getElementById('confirmPassword').value;
-  const errorEl = document.getElementById('passwordError');
+// Password visibility toggles for current / new / confirm fields
+document.querySelectorAll('.toggle-password').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    const targetId = btn.dataset.target;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.classList.toggle('is-visible', isHidden);
+    btn.setAttribute('aria-pressed', String(isHidden));
+  });
+});
 
-  if (!current || next.length < 6 || next !== confirm) {
-    errorEl.textContent = next !== confirm ? "New passwords don't match." : 'Password must be at least 6 characters.';
-    errorEl.hidden = false;
+// MOCK — becomes: PATCH /api/admin/password  { currentPassword, newPassword }
+document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearFormMessage();
+  const currentPassword = document.getElementById('currentPassword').value;
+  const nextPassword = document.getElementById('newPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const formMessage = document.getElementById('formMessage').hidden;
+  clearFormMessage();
+
+  if(!currentPassword || !nextPassword || !confirmPassword){
+    showFormMessage('Fill al the fields', 'error');
+    formMessage.hidden = false;
     return;
   }
 
-  errorEl.hidden = true;
-  alert('Password updated (mock) — this will call the real API once the backend exists.');
-  passwordModal.classList.remove('is-open');
-  e.target.reset();
+  if(nextPassword.length < 6){
+    showFormMessage('New Password must be 6 characters', 'error');
+    formMessage.hidden = false;
+    return;
+  }
+
+  if(nextPassword !== confirmPassword){
+    showFormMessage("New passwords don't match.", 'error');
+    formMessage.hidden = false;
+    return;
+  }
+
+  if(currentPassword === nextPassword){
+    showFormMessage("New Password is same as old Passowrd", 'error');
+    formMessage.hidden = false;
+    return;
+  }
+
+  try {
+    
+    const response = await fetch('http://localhost:4000/api/v1/admin/change-password', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {'Content-Type': 'application/json' },
+      body: JSON.stringify({currentPassword, nextPassword, confirmPassword})
+    });
+
+    if(response.ok){
+        showFormMessage("Password Changed Successfully", 'success');
+        setTimeout(() => {
+            passwordModal.classList.remove('is-open');
+            e.target.reset();
+        }, 1200);
+        return;
+    }else{
+      showFormMessage("Invlaid current password", 'error');
+      return;
+    }
+
+  } catch (error) {
+    showFormMessage(error?.message || "Something went wrong try again later !", 'error');
+    console.log(error?.message);
+  }
+
 });
 
 // ============================================

@@ -54,6 +54,18 @@
   color: var(--white);
 }
 
+.type-option:first-child {
+    transform: rotate(-2.5deg);
+}
+
+.type-option:last-child {
+    transform: rotate(2.5deg);
+}
+
+.type-option.is-active {
+    transform: rotate(-0.5deg) translateY(2px);
+}
+
 /* ---------- Form card ---------- */
 .form-card {
   position: relative;

@@ -5,6 +5,21 @@
 // will include the admin's name/username too — swap the localStorage
 // line for whatever the backend actually returns, same idea either way.
 // ============================================
+
+// Password visibility toggles for current / new / confirm fields
+document.querySelectorAll('.toggle-password').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    const targetId = btn.dataset.target;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.classList.toggle('is-visible', isHidden);
+    btn.setAttribute('aria-pressed', String(isHidden));
+  });
+});
+
+
 const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const formMessage = document.getElementById('formMessage');
@@ -31,7 +46,7 @@ function clearFormMessage() {
 
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    clearFormMessage();
+    // clearFormMessage();
 
     const Username = document.getElementById('username').value.trim();
     const Password = document.getElementById('password').value.trim();

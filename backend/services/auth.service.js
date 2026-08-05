@@ -26,4 +26,31 @@ const generateAccessAndRefreshToken = async (payload) => {
     }
 }
 
-module.exports = {generateAccessAndRefreshToken};
+const logoutSession = async (res, userId = null,  statusCode = 401, message = "Session expired") => {
+    if (userId) {
+        const db = GetDb();
+        await db.promise().query(
+            "UPDATE admin SET RefreshToken = NULL WHERE id = ?",
+            [userId]
+        );
+    }
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    };
+
+    return res
+        .status(statusCode)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json({ message });
+};
+
+
+
+module.exports = {
+    generateAccessAndRefreshToken,
+    logoutSession
+};
