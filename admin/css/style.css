@@ -3,43 +3,6 @@
    Same tokens/typeface/buttons as the customer site,
    kept utility-focused — no ambient orbs/floating nav here.
    ============================================ */
-
-@font-face {
-  font-family: 'Inter Sans';
-  src: url('../assets/fonts/inter-sans-regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Inter Sans';
-  src: url('../assets/fonts/inter-sans-medium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Inter Sans';
-  src: url('../assets/fonts/inter-sans-semibold.otf') format('opentype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Inter Sans';
-  src: url('../assets/fonts/inter-sans-bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Inter Sans';
-  src: url('../assets/fonts/inter-sans-black.otf') format('opentype');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --black: #0d0d0d;
   --white: #ffffff;

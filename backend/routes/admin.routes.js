@@ -9,8 +9,9 @@ AdminRouter.route('/logout').post(logoutUser);
 
 AdminRouter.route('/refresh-token').post(rotateAccessToken);
 
-
 //Protected route
 AdminRouter.route('/change-password').post(verifyJWT , changePassword);
+
+
 
 module.exports = AdminRouter;

@@ -2,7 +2,7 @@
 // SZCUTZ Admin — Dashboard logic (sidebar version)
 // MOCK DATA everywhere — every backend-bound action is commented
 // with the real route it becomes.
-
+import {protectedFetch} from "./auth.ClientApi.js";
 
 // ============================================
 function showFormMessage(message, type = 'error') {
@@ -57,6 +57,7 @@ document.getElementById('changePasswordBtn').addEventListener('click', () => {
 });
 document.getElementById('closePasswordModal').addEventListener('click', () => {
   passwordModal.classList.remove('is-open');
+  clearFormMessage();
 });
 
 // Password visibility toggles for current / new / confirm fields
@@ -75,7 +76,6 @@ document.querySelectorAll('.toggle-password').forEach((btn) => {
 // MOCK — becomes: PATCH /api/admin/password  { currentPassword, newPassword }
 document.getElementById('passwordForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  clearFormMessage();
   const currentPassword = document.getElementById('currentPassword').value;
   const nextPassword = document.getElementById('newPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
@@ -100,30 +100,24 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
     return;
   }
 
-  if(currentPassword === nextPassword){
-    showFormMessage("New Password is same as old Passowrd", 'error');
-    formMessage.hidden = false;
-    return;
-  }
-
   try {
     
-    const response = await fetch('http://localhost:4000/api/v1/admin/change-password', {
+    const response = await protectedFetch('http://localhost:4000/api/v1/admin/change-password', {
       method: 'POST',
-      credentials: 'include',
-      headers: {'Content-Type': 'application/json' },
-      body: JSON.stringify({currentPassword, nextPassword, confirmPassword})
+      body: {currentPassword, nextPassword, confirmPassword}
     });
 
     if(response.ok){
         showFormMessage("Password Changed Successfully", 'success');
         setTimeout(() => {
             passwordModal.classList.remove('is-open');
+            clearFormMessage();
             e.target.reset();
         }, 1200);
-        return;
+        
     }else{
-      showFormMessage("Invlaid current password", 'error');
+      const res = await response.json();
+      showFormMessage(res.message, 'error');
       return;
     }
 

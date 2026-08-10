@@ -20,14 +20,10 @@ async function logout() {
           headers: { 'Content-Type': 'application/json' }
       });
 
-      if(response.ok){
-          localStorage.removeItem('szcutz_admin_token');
-          localStorage.removeItem('szcutz_admin_username');
-          window.location.href = '../html/login.html';
-          return;
-      }else{
-        return null;
-      }
+      localStorage.removeItem('szcutz_admin_token');
+      localStorage.removeItem('szcutz_admin_username');
+      window.location.href = '../html/login.html';
+      return;
       
   } catch (error) {
 

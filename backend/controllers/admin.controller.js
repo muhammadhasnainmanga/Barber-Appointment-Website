@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const cookieparser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-const ApiError = require('../utils/ApiError.utils.js');
+const {ApiError} = require('../utils/ApiError.utils.js');
 const {GetDb} = require('../database/connect.db.js');
 const {generateAccessAndRefreshToken , logoutSession} = require('../services/auth.service.js');
 
@@ -77,10 +77,12 @@ const logoutUser = async (req, res) => {
         if(error.name === 'TokenExpiredError'){
             const refreshToken = req.cookies?.refreshToken;
             const decode = jwt.decode(refreshToken);
+            console.log("Logout due to fraudulant token");
             return logoutSession(res, decode?.id, 200, "Logout with expired refresh token");
         }else
             //case 3 : fraudulant tha
             if(error.name === 'JsonWebTokenError'){
+                console.log("Logout due to fraudulant token");
                 return logoutSession(res, null, 401, "Logout due to fraudulant token");
             }
         else{
@@ -90,7 +92,7 @@ const logoutUser = async (req, res) => {
     }
 }
 
-//Change password
+//Change password //Authenticated Route
 const changePassword = async (req,res) => {
     try {
         const {currentPassword, nextPassword, confirmPassword} = req.body;
@@ -112,6 +114,11 @@ const changePassword = async (req,res) => {
 
         if(!comparePassword){
             throw new ApiError(401, "Invalid Current Passward");
+        }
+
+        //Extra check
+        if(currentPassword === nextPassword){
+            throw new ApiError(401, "New Password is same as old Passowrd");
         }
 
         const nextPassword_hash = await bcrypt.hash(nextPassword, 10);
@@ -140,10 +147,10 @@ const rotateAccessToken = async (req, res) => {
             if(!incomingRefreshToken){
                 throw new ApiError(401, "Unathorized Request - No Refresh token in the cookies");
             }
-        
-            const db = GetDb();
-
+         
             const verifyJWT = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+            
+            const db = GetDb();
 
             //case 1 : token bilkul theek hai
             const [row] = await db.promise().query(
@@ -199,6 +206,8 @@ const rotateAccessToken = async (req, res) => {
         }
     }
 }
+
+
 
 module.exports = {
     checkLogin,
