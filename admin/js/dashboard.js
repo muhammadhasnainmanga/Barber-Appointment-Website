@@ -5,23 +5,19 @@
 import {protectedFetch} from "./auth.ClientApi.js";
 
 // ============================================
-function showFormMessage(message, type = 'error') {
-    formMessage.textContent = message;
-    formMessage.classList.remove('form-message-success', 'form-message-error');
-
-    if (type === 'success') {
-        formMessage.classList.add('form-message-success');
-    } else {
-        formMessage.classList.add('form-message-error');
-    }
-
-    formMessage.hidden = false;
+function showFormMessage(el, message, type = 'error') {
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('form-message-success', 'form-message-error');
+  el.classList.add(type === 'success' ? 'form-message-success' : 'form-message-error');
+  el.hidden = false;
 }
 
-function clearFormMessage() {
-    formMessage.textContent = '';
-    formMessage.classList.remove('form-message-success', 'form-message-error');
-    formMessage.hidden = true;
+function clearFormMessage(el) {
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('form-message-success', 'form-message-error');
+  el.hidden = true;
 }
 
 
@@ -79,24 +75,21 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
   const currentPassword = document.getElementById('currentPassword').value;
   const nextPassword = document.getElementById('newPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
-  const formMessage = document.getElementById('formMessage').hidden;
-  clearFormMessage();
+  const formMessagePassword = document.getElementById('formMessage-password');
+  clearFormMessage(formMessagePassword);
 
   if(!currentPassword || !nextPassword || !confirmPassword){
-    showFormMessage('Fill al the fields', 'error');
-    formMessage.hidden = false;
+    showFormMessage(formMessagePassword ,'Fill al the fields', 'error');
     return;
   }
 
   if(nextPassword.length < 6){
-    showFormMessage('New Password must be 6 characters', 'error');
-    formMessage.hidden = false;
+    showFormMessage(formMessagePassword ,'New Password must be 6 characters', 'error');
     return;
   }
 
   if(nextPassword !== confirmPassword){
-    showFormMessage("New passwords don't match.", 'error');
-    formMessage.hidden = false;
+    showFormMessage(formMessagePassword ,"New passwords don't match.", 'error');
     return;
   }
 
@@ -108,21 +101,21 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
     });
 
     if(response.ok){
-        showFormMessage("Password Changed Successfully", 'success');
+        showFormMessage(formMessagePassword, "Password Changed Successfully", 'success');
         setTimeout(() => {
             passwordModal.classList.remove('is-open');
-            clearFormMessage();
+            clearFormMessage(formMessagePassword);
             e.target.reset();
         }, 1200);
         
     }else{
       const res = await response.json();
-      showFormMessage(res.message, 'error');
+      showFormMessage(formMessagePassword, res.message, 'error');
       return;
     }
 
   } catch (error) {
-    showFormMessage(error?.message || "Something went wrong try again later !", 'error');
+    showFormMessage(formMessagePassword, error?.message || "Something went wrong try again later !", 'error');
     console.log(error?.message);
   }
 
@@ -531,63 +524,212 @@ function renderWeeklyGrid() {
 // SERVICES — POST /api/admin/services, PUT /api/admin/services/:id, DELETE /api/admin/services/:id
 // ============================================
 
-let services = [
-  { id: 'haircut', name: 'Haircut', price: 800, duration: '45 min' },
-  { id: 'shave', name: 'Shave', price: 400, duration: '30 min' },
-];
+//Extra one for reducing db calls
+let editingServiceId = null;
+let deletingServiceId = null;
+let services = [];
 
-function renderServices() {
+//both modules
+const editModal = document.getElementById('editServiceModal');
+const deleteModal = document.getElementById('deleteServiceModal');
+
+//two button of edit module
+const editServiceForm = document.getElementById('editServiceForm');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+//two button of delete module
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+//Adding services thingy
+const serviceForm = document.getElementById('serviceForm');
+if (serviceForm) {
+  serviceForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('serviceName').value.trim();
+    const price = Number(document.getElementById('servicePrice').value);
+    const duration = document.getElementById('serviceDuration').value.trim();
+    if (!name || !price || !duration) return;
+
+    //Post services apicall
+    try {
+      const response = await protectedFetch('http://localhost:4000/api/v1/services/post-services', {
+        method: 'POST',
+        body: {name, price, duration}
+      });
+
+      if(response.ok){
+          renderServices();
+          e.target.reset();
+      }else{
+        const res = await response.json();
+        showFormMessage(res.message, 'error');
+        return;
+      }
+
+    } catch (error) {
+      showFormMessage(error?.message || "Something went wrong try again later !", 'error');
+      console.log(error?.message);
+    }
+  });
+}
+
+//render avail service thing
+async function renderServices() {
   const tbody = document.getElementById('servicesTableBody');
+  if (!tbody) return;   // guard: agar services table iss page pe nahi hai
 
-  if (services.length === 0) {
+  try {
+      const response = await protectedFetch('http://localhost:4000/api/v1/services/get-services', {
+        method: 'GET'
+      });
+
+      if(response.ok){
+        const serviceData = await response.json();
+        services = serviceData;
+
+        tbody.innerHTML = serviceData
+        .map(
+          (s) => `
+          <tr>
+            <td>${s.name}</td>
+            <td>PKR ${s.price}</td>
+            <td class="cell-muted">${s.duration}</td>
+            <td>
+              <div class="row-actions">
+                <button class="btn btn-outline btn-sm" onclick="openEditModal(${s.id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${s.id})">Delete</button>
+              </div>
+            </td>
+          </tr>`
+        )
+        .join('');
+        // console.log(services);
+      }else{
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No services yet — add your first one above.</td></tr>`;
+        return;
+      }
+  } catch (error) {
+    console.log(error.message || "Service display not working");
     tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No services yet — add your first one above.</td></tr>`;
+  }
+
+}
+
+// ---- Edit flow ---- //
+
+//Edit modal - function
+function openEditModal(id) {
+  if (!editModal) return;
+  
+  //Saved services in Get logic render service to avoid a DB call here
+  const service = services.find((s) => s.id === id);
+
+  if(!service) {
+    console.log("Service not avail");
     return;
   }
 
-  tbody.innerHTML = services
-    .map(
-      (s) => `
-      <tr>
-        <td>${s.name}</td>
-        <td>PKR ${s.price}</td>
-        <td class="cell-muted">${s.duration}</td>
-        <td>
-          <div class="row-actions">
-            <button class="btn btn-outline btn-sm" onclick="editService('${s.id}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteService('${s.id}')">Delete</button>
-          </div>
-        </td>
-      </tr>`
-    )
-    .join('');
+  editingServiceId = id;
+  document.getElementById('editServiceName').value = service.name;
+  document.getElementById('editServicePrice').value = service.price;
+  document.getElementById('editServiceDuration').value = service.duration;
+
+  editModal.classList.add('is-open');
+  playReveal(editModal);
 }
 
-document.getElementById('serviceForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('serviceName').value.trim();
-  const price = Number(document.getElementById('servicePrice').value);
-  const duration = document.getElementById('serviceDuration').value.trim();
-  if (!name || !price || !duration) return;
+//edit form
+if (editServiceForm) {
+  editServiceForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('editServiceName').value.trim();
+    const price = Number(document.getElementById('editServicePrice').value);
+    const duration = document.getElementById('editServiceDuration').value.trim();
+    const formMessageEditService = document.getElementById('formMessage-Editservice');
 
-  services.push({ id: name.toLowerCase().replace(/\s+/g, '-'), name, price, duration });
-  renderServices();
-  e.target.reset();
-});
+    try {
+      const response = await protectedFetch(`http://localhost:4000/api/v1/services/edit-services/${editingServiceId}`, {
+        method: 'PATCH',
+        body: {name, price, duration}
+      });
 
-function editService(id) {
-  const service = services.find((s) => s.id === id);
-  if (!service) return;
-  const newPrice = prompt(`New price for ${service.name} (PKR)`, service.price);
-  if (newPrice === null) return;
-  service.price = Number(newPrice) || service.price;
-  renderServices();
+      if(response.ok){
+        showFormMessage(formMessageEditService, "Service Updated", 'success');
+        setTimeout(() => {
+            renderServices();
+            closeEditModal();
+        }, 1500);
+      }else{
+        showFormMessage(formMessageEditService, "Fail to update service", 'error');
+        console.log("Facing issue while editing service")
+      }
+
+    } catch (error) {
+       showFormMessage(formMessageEditService, error?.message || "Something went wrong try again later !", 'error');
+       console.log(error?.message);
+    }
+  });
 }
 
-function deleteService(id) {
-  if (!confirm('Remove this service? It will no longer show up for customers.')) return;
-  services = services.filter((s) => s.id !== id);
-  renderServices();
+//Cancel
+if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
+
+//close - function
+function closeEditModal() {
+  const formMessageEditService = document.getElementById('formMessage-Editservice');
+
+  if (editModal) editModal.classList.remove('is-open');
+  clearFormMessage(formMessageEditService);
+  editingServiceId = null;
+  clearFormMessage();
 }
+
+// ---- Delete flow ---- //
+
+//delete module - function
+function openDeleteModal(id) {
+  if (!deleteModal) return;
+  deletingServiceId = id;
+  deleteModal.classList.add('is-open');
+  playReveal(deleteModal);
+}
+
+//Confirming delete module
+if (confirmDeleteBtn) {
+  confirmDeleteBtn.addEventListener('click', async () => {
+    //Delete query
+    try {
+      const response = await protectedFetch(`http://localhost:4000/api/v1/services/delete-services/${deletingServiceId}`, {
+        method: 'Delete'
+      });
+
+      if(response.ok){
+        renderServices();
+        closeDeleteModal();
+      }else{
+        console.log("Facing issues while deleting model");
+      }
+    } catch (error) {
+        showFormMessage(error?.message || "Something went wrong try again later !", 'error');
+        console.log(error?.message);
+    }
+
+    
+  });
+}
+
+//Canceling delete module
+if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+//closing module - function
+function closeDeleteModal() {
+  if (deleteModal) deleteModal.classList.remove('is-open');
+  deletingServiceId = null;
+}
+
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
 
 // ---------- Init ----------
 renderDayChips();

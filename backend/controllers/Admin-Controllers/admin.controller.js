@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt');
 const cookieparser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-const {ApiError} = require('../utils/ApiError.utils.js');
-const {GetDb} = require('../database/connect.db.js');
-const {generateAccessAndRefreshToken , logoutSession} = require('../services/auth.service.js');
+const {ApiError} = require('../../utils/ApiError.utils.js');
+const {GetDb} = require('../../database/connect.db.js');
+const {generateAccessAndRefreshToken , logoutSession} = require('../../services/auth.service.js');
 
 //Login
 const checkLogin = async (req,res) => {

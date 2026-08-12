@@ -14,10 +14,17 @@ app.use(express.json());
 app.use(cookieparser());
 
 
-//Routes
-const AdminRouter = require('./routes/admin.routes.js');
-
+//Admin Routes
+const AdminRouter = require('./routes/Admin-Routes/admin.routes.js');
 app.use('/api/v1/admin', AdminRouter);
 
+
+//Service Routes
+const serviceRouter = require('./routes/Admin-Routes/admin.service.routes.js');
+app.use('/api/v1/services', serviceRouter);
+
+
+const homeServiceRouter = require('./routes/User-Routes/user.routes.js');
+app.use('/api/v1/user', homeServiceRouter);
 
 module.exports = app;

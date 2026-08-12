@@ -1,7 +1,7 @@
 const express = require('express');
 const AdminRouter = express.Router();
-const {checkLogin, logoutUser, rotateAccessToken, changePassword} = require('../controllers/admin.controller.js');
-const {verifyJWT} = require('../middleware/auth.middleware.js');
+const {checkLogin, logoutUser, rotateAccessToken, changePassword} = require('../../controllers/Admin-Controllers/admin.controller.js');
+const {verifyJWT} = require('../../middleware/auth.middleware.js');
 
 AdminRouter.route('/login').post(checkLogin);
 

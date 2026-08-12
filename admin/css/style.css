@@ -220,3 +220,48 @@ button { font-family: var(--font); }
 .toggle-password .icon-eye-off { display: none; }
 .toggle-password.is-visible .icon-eye { display: none; }
 .toggle-password.is-visible .icon-eye-off { display: block; }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay.is-open {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-box-sm {
+  max-width: 360px;
+}
+
+.modal-box h3 {
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.modal-subtext {
+  color: #6b6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}

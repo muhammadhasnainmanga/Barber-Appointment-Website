@@ -333,6 +333,27 @@
   object-fit: cover;
 }
 
+.services-empty-state {
+  grid-column: 1 / -1;   /* poori grid-width span kare, sirf ek column nahi */
+  text-align: center;
+  padding: 60px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--gray-500);
+}
+
+.services-empty-state .empty-icon {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto 16px;
+  color: var(--gray-500);
+}
+
+.services-empty-state p {
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
 @media (max-width: 768px) {
   .about-grid {
     grid-template-columns: 1fr;

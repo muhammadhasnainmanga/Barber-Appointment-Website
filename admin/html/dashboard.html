@@ -272,6 +272,44 @@
         </div>
       </section>
 
+      <!-- Edit Service Modal -->
+      <div class="modal-overlay" id="editServiceModal">
+        <div class="modal-box" data-reveal data-delay="0">
+          <h3>Edit Service</h3>
+          <form id="editServiceForm">
+            <div class="form-group">
+              <label for="editServiceName">Name</label>
+              <input type="text" id="editServiceName" required />
+            </div>
+            <div class="form-group">
+              <label for="editServicePrice">Price (PKR)</label>
+              <input type="number" id="editServicePrice" min="0" required />
+            </div>
+            <div class="form-group">
+              <label for="editServiceDuration">Duration</label>
+              <input type="text" id="editServiceDuration" required />
+            </div>
+            <div class="form-message" id="formMessage-Editservice" role="alert" hidden></div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="cancelEditBtn">Cancel</button>
+              <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Delete Confirm Modal -->
+      <div class="modal-overlay" id="deleteServiceModal">
+        <div class="modal-box modal-box-sm" data-reveal data-delay="0">
+          <h3>Remove Service?</h3>
+          <p class="modal-subtext">This service will no longer show up for customers.</p>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline btn-sm" id="cancelDeleteBtn">Cancel</button>
+            <button type="button" class="btn btn-danger btn-sm" id="confirmDeleteBtn">Delete</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ===================== Gallery (placeholder) ===================== -->
       <section class="view" id="view-gallery">
         <div class="view-head" data-reveal data-delay="0"><h2>Gallery</h2></div>
@@ -318,7 +356,7 @@
             </button>
           </div>
         </div>
-        <div class="form-message" id="formMessage" role="alert" hidden></div>
+        <div class="form-message" id="formMessage-password" role="alert" hidden></div>
         <button type="submit" class="btn btn-primary">Update Password</button>
       </form>
     </div>
