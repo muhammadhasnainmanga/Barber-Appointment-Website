@@ -75,15 +75,34 @@ function clearFormMessage() {
 }
 
 // ---------- Populate Services (runs once) ----------
-function populateServices() {
-  serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
-  services.forEach((s) => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.dataset.price = s.price;
-    opt.textContent = `${s.name} — PKR ${s.price} (${s.duration})`;
-    serviceSelect.appendChild(opt);
-  });
+async function populateServices() {
+
+  try {
+    const response = await fetch('http://localhost:4000/api/v1/user/get-services', {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'}
+    });
+
+    if(response.ok){
+      const services = await response.json();
+
+      if(services.length === 0){
+        serviceSelect.innerHTML = '<option value="" disabled selected>No services are avaliable</option>';
+      }else{
+        serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
+        services.forEach((s) => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.dataset.price = s.price;
+        opt.textContent = `${s.name} — PKR ${s.price} (${s.duration})`;
+        serviceSelect.appendChild(opt);
+        });
+      }
+    }
+  }catch (error) {
+    serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
+    console.log("Error while getting services for appointment");
+  }
 }
 
 // ---------- Populate Dates (re-runs whenever type changes) ----------

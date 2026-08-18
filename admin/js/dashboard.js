@@ -271,18 +271,24 @@ function changeStatus(id, newStatus) {
 }
 
 // ============================================
-// DEFAULT SCHEDULE — the recurring weekly pattern, per type
-// Becomes: POST /api/admin/schedule  { type, days, startTime, endTime, duration }
+// DEFAULT SCHEDULE — per (type, day) now, not one rule for many days
+// Becomes: POST /api/admin/schedule  { type, days: {...} }
 // ============================================
 
+//duration
+const DURATION_OPTIONS = [30, 60, 90, 120, 150, 180];
+
+//twp types
 let defaultSchedules = {
-  appointment: null,
-  home_service: null,
+  appointment: {},
+  home_service: {},
 };
 
-let selectedDefaultDays = new Set(DAY_ORDER); // start with "All Days" selected
+//default type
 let currentDefaultType = 'appointment';
+const formMessagedefaultSchedule = document.getElementById('formMessage-defaultSchedule');
 
+//time generator
 function generateTimes(start, end, durationMin) {
   const times = [];
   let [h, m] = start.split(':').map(Number);
@@ -306,167 +312,340 @@ function formatTime12h(hhmm) {
   return `${h}:${String(m).padStart(2, '0')} ${suffix}`;
 }
 
-// ---------- Day chip toggling (with "All Days" as a smart shortcut) ----------
-const defaultDayChipsEl = document.getElementById('defaultDayChips');
-
-function syncAllDaysChip() {
-  const allChip = defaultDayChipsEl.querySelector('[data-day="all"]');
-  allChip.classList.toggle('is-active', selectedDefaultDays.size === DAY_ORDER.length);
+function defaultDayEntry() {
+  return { isOpen: true, start: '09:00', end: '17:00', duration: 60, times: [] };
 }
 
-function renderDayChips() {
-  defaultDayChipsEl.querySelectorAll('.day-chip:not(.all-days)').forEach((chip) => {
-    chip.classList.toggle('is-active', selectedDefaultDays.has(chip.dataset.day));
-  });
-  syncAllDaysChip();
-}
+//making defaultSchedules a 2d array here type + day
 
-defaultDayChipsEl.addEventListener('click', (e) => {
-  const chip = e.target.closest('.day-chip');
-  if (!chip) return;
-  const day = chip.dataset.day;
-
-  if (day === 'all') {
-    if (selectedDefaultDays.size === DAY_ORDER.length) {
-      selectedDefaultDays.clear(); // all were on → turn all off
-    } else {
-      DAY_ORDER.forEach((d) => selectedDefaultDays.add(d)); // turn all on
+// Guarantees every type always has all 7 days present in state,
+// even before the admin has touched anything.
+function ensureScheduleShape(type) {
+  if (!defaultSchedules[type]) defaultSchedules[type] = {};
+  DAY_ORDER.forEach((day) => {
+    if (!defaultSchedules[type][day]) {
+      defaultSchedules[type][day] = defaultDayEntry();
     }
-  } else {
-    selectedDefaultDays.has(day) ? selectedDefaultDays.delete(day) : selectedDefaultDays.add(day);
+  });
+}
+
+function renderScheduleRows(type) {
+  ensureScheduleShape(type);
+  const container = document.getElementById('defaultScheduleRows');
+  clearFormMessage(formMessagedefaultSchedule);
+
+  container.innerHTML = DAY_ORDER.map((day) => {
+    const entry = defaultSchedules[type][day];
+    return `
+      <div class="schedule-row ${entry.isOpen ? '' : 'is-closed'}" data-day="${day}">
+        <label class="schedule-day-toggle">
+          <input type="checkbox" class="schedule-open-checkbox" ${entry.isOpen ? 'checked' : ''} />
+          <span>${DAY_LABELS[day]}</span>
+        </label>
+        <div class="schedule-time-fields">
+          <input type="time" class="schedule-start" value="${entry.start}" ${entry.isOpen ? '' : 'disabled'} />
+          <span class="schedule-time-sep">to</span>
+          <input type="time" class="schedule-end" value="${entry.end}" ${entry.isOpen ? '' : 'disabled'} />
+          <select class="schedule-duration" ${entry.isOpen ? '' : 'disabled'}>
+            ${DURATION_OPTIONS.map((d) => `<option value="${d}" ${entry.duration === d ? 'selected' : ''}>${d} min</option>`).join('')}
+          </select>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+//Agr sirf change kya but save nhi kya tou default me save kar dega for easiness
+
+// Event delegation — one listener handles all 7 rows, since they're
+// re-rendered often (no point attaching 21 individual listeners).
+document.getElementById('defaultScheduleRows').addEventListener('change', (e) => {
+  const row = e.target.closest('.schedule-row');
+  if (!row) return;
+  const day = row.dataset.day;
+  const entry = defaultSchedules[currentDefaultType][day];
+
+  if (e.target.classList.contains('schedule-open-checkbox')) {
+    entry.isOpen = e.target.checked;
+    renderScheduleRows(currentDefaultType); // re-render so fields enable/disable visually
+    return;
   }
-  renderDayChips();
+  if (e.target.classList.contains('schedule-start')) entry.start = e.target.value;
+  if (e.target.classList.contains('schedule-end')) entry.end = e.target.value;
+  if (e.target.classList.contains('schedule-duration')) entry.duration = Number(e.target.value);
 });
 
-// ---------- Type toggle (Default Schedule view) ----------
 document.getElementById('defaultTypeToggle').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
   document.querySelectorAll('#defaultTypeToggle button').forEach((b) => b.classList.remove('is-active'));
   btn.classList.add('is-active');
   currentDefaultType = btn.dataset.type;
-  loadDefaultScheduleIntoForm(currentDefaultType);
+  renderScheduleRows(currentDefaultType);
+  renderDefaultPreview(currentDefaultType);
 });
 
-function loadDefaultScheduleIntoForm(type) {
-  const schedule = defaultSchedules[type];
-  if (schedule) {
-    selectedDefaultDays = new Set(schedule.days);
-    document.getElementById('defaultStartTime').value = schedule.startTime;
-    document.getElementById('defaultEndTime').value = schedule.endTime;
-    document.getElementById('defaultDuration').value = schedule.duration;
-  } else {
-    selectedDefaultDays = new Set(DAY_ORDER);
-    document.getElementById('defaultStartTime').value = '09:00';
-    document.getElementById('defaultEndTime').value = '17:00';
-    document.getElementById('defaultDuration').value = '60';
-  }
-  renderDayChips();
-  renderDefaultPreview(type);
-}
-
+//the one which we see below sample kind a thing
 function renderDefaultPreview(type) {
   const schedule = defaultSchedules[type];
-  const previewChips = document.getElementById('defaultPreviewChips');
-  const previewDays = document.getElementById('defaultPreviewDays');
+  const container = document.getElementById('defaultPreviewChips');
 
-  if (!schedule) {
-    previewChips.innerHTML = `<span class="cell-muted">No schedule saved yet for this type.</span>`;
-    previewDays.textContent = 'Applies to: —';
-    return;
-  }
-
-  previewDays.textContent = `Applies to: ${schedule.days.length === 7 ? 'All Days' : schedule.days.map((d) => DAY_LABELS[d]).join(', ')}`;
-  previewChips.innerHTML = schedule.times.map((t) => `<span class="slot-chip">${formatTime12h(t)}</span>`).join('');
+  container.innerHTML = DAY_ORDER.map((day) => {
+    const entry = schedule[day];
+    if (!entry.isOpen) {
+      return `<div class="preview-day-row"><strong>${DAY_LABELS[day]}</strong><span class="cell-muted">Closed</span></div>`;
+    }
+    const chips = (entry.times || [])
+      .map((t) => `<span class="slot-chip">${formatTime12h(t)}</span>`)
+      .join('');
+    return `<div class="preview-day-row"><strong>${DAY_LABELS[day]}</strong><div class="slot-chip-row">${chips || '<span class="cell-muted">No slots</span>'}</div></div>`;
+  }).join('');
 }
 
 // MOCK — becomes: POST /api/admin/schedule
-document.getElementById('saveDefaultScheduleBtn').addEventListener('click', () => {
-  const startTime = document.getElementById('defaultStartTime').value;
-  const endTime = document.getElementById('defaultEndTime').value;
-  const duration = document.getElementById('defaultDuration').value;
+document.getElementById('saveDefaultScheduleBtn').addEventListener('click', async () => {
+  const schedule = defaultSchedules[currentDefaultType];
+  clearFormMessage(formMessagedefaultSchedule);
 
-  if (selectedDefaultDays.size === 0) {
-    alert('Pick at least one day.');
-    return;
+  const dayPayload = [];
+
+  for (const day of DAY_ORDER) {
+    const entry = schedule[day];
+    if (!entry.isOpen) {
+      entry.times = [];
+      dayPayload.push({ day, isOpen: false, start: null, end: null, duration: null });
+      continue;
+    }
+    if (!entry.start || !entry.end || entry.start >= entry.end) {
+      showFormMessage(formMessagedefaultSchedule, `Start time is after before time on ${DAY_LABELS[day]}`, 'error');
+      return;
+    }
+    entry.times = generateTimes(entry.start, entry.end, entry.duration);
+    dayPayload.push({ day, isOpen: true, start: entry.start, end: entry.end, duration: entry.duration});
   }
-  if (startTime >= endTime) {
-    alert('End time must be after start time.');
-    return;
-  }
 
-  defaultSchedules[currentDefaultType] = {
-    days: [...selectedDefaultDays],
-    startTime,
-    endTime,
-    duration,
-    times: generateTimes(startTime, endTime, duration),
-  };
+  try {
+      const response = await protectedFetch('http://localhost:4000/api/v1/schedule/post-schedule', {
+        method: 'POST',
+        body: {
+          type: currentDefaultType,
+          days: dayPayload,
+        }
+      });
 
-  renderDefaultPreview(currentDefaultType);
-  populateBlockTimeDropdown(); // the Blocked Slots view depends on this
-  renderWeeklyGrid();
+      if(!response.ok){
+         const res = await response.json();
+        showFormMessage(formMessagedefaultSchedule, res.message || "Failed to save Default Schedule", 'error');
+        return;
+      }
+
+      showFormMessage(formMessagedefaultSchedule, "Default Schedule saved successfully", 'success');
+      setTimeout(() => {
+        clearFormMessage(formMessagedefaultSchedule)
+      }, 2000);
+
+    } catch (error) {
+      console.log("Error while saving default schedule");
+      showFormMessage(formMessagedefaultSchedule, error.message || "Failed to save Default Schedule", 'error');
+      return;
+    }
+
+    renderDefaultPreview(currentDefaultType);
+    renderBlockTimeChips();
+    renderWeeklyGrid();
 });
 
 // ============================================
-// BLOCKED SLOTS (exceptions) — per type
-// Becomes: POST /api/admin/blocks, DELETE /api/admin/blocks/:id
+// BLOCKED SLOTS — Time dropdown ab Day ke hisaab se bhi badalta hai
 // ============================================
 
 let blockedSlots = [];
-let nextBlockId = 1;
+// let nextBlockId = 1;
 let currentBlockedType = 'appointment';
+let selectedBlockTimes = new Set();   // specific 'HH:MM' strings
+let wholeDaySelected = false;
+const formMessageBlockSlots = document.getElementById('formMessage-Block-slots'); 
 
+const blockTimeChipsEl = document.getElementById('blockTimeChips');
+
+function getTimesForCurrentDay() {
+  const day = document.getElementById('blockDay').value;
+  const schedule = defaultSchedules[currentBlockedType];
+
+  if (day === 'all') {
+    const allTimes = new Set();
+    DAY_ORDER.forEach((d) => (schedule[d]?.times || []).forEach((t) => allTimes.add(t)));
+    return [...allTimes].sort();
+  }
+  return schedule[day]?.times || [];
+}
+
+//We can might change it cuz har action pe button bhi wapsi pure html me laga rha instead pf just adding active wagera
+function renderBlockTimeChips() {
+  const day = document.getElementById('blockDay').value;
+  const timesToShow = getTimesForCurrentDay();
+ 
+  if (timesToShow.length === 0) {
+  blockTimeChipsEl.innerHTML = `
+    <div class="services-empty-state">
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="8" x2="12" y2="12"/>
+    <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+
+    <p>${DAY_LABELS[day]} has no default schedule avaliable.</p>
+  </div>
+  `;
+  return;
+  }
+
+  //all this backchodi for disabling blocked once
+  const isWholeDayBlocked = blockedSlots.some(
+    (b) =>
+      b.type === currentBlockedType &&
+      (b.day === day || b.day === 'all') &&
+      (b.time === 'whole_day')
+  );
+
+  let wholeDayChip = '';
+  if(timesToShow.length >= 2){
+    wholeDayChip =  `<button
+    type="button"
+    class="day-chip all-days ${wholeDaySelected ? 'is-active' : '' }"
+    data-time="whole_day" ${isWholeDayBlocked ? 'disabled' : ''}>
+    Whole Day
+    </button>`;
+  }
+
+  //same here
+  const timeChips = timesToShow
+    .map((t) => {
+      const isBlocked = blockedSlots.some(
+        (b) =>
+          b.type === currentBlockedType &&
+          (b.day === day || b.day === 'all') &&
+          (b.time === t || b.time === 'whole_day')
+      );
+
+      return `
+        <button
+          type="button"
+          class="day-chip ${selectedBlockTimes.has(t) ? 'is-active' : ''}"
+          data-time="${t}"
+          ${isBlocked ? 'disabled' : ''}
+        >
+          ${formatTime12h(t)}
+        </button>`;
+    })
+    .join('');
+
+  blockTimeChipsEl.innerHTML = wholeDayChip + timeChips;
+}
+
+// jb bhi kio chip pe click hoga uska color change kardega + agr sari select ki tou whole pe shift
+blockTimeChipsEl.addEventListener('click', (e) => {
+  const activeChips = document.querySelectorAll('.day-chip.is-active, .day-chip:disabled');
+  const totalChips = getTimesForCurrentDay();
+
+  const chip = e.target.closest('.day-chip');
+  if (!chip) return;
+  const time = chip.dataset.time;
+  if (time === 'whole_day') {
+    wholeDaySelected = !wholeDaySelected;
+    if (wholeDaySelected) selectedBlockTimes.clear(); // whole-day individual selections ko override karta hai
+  }
+  else if(activeChips.length === totalChips.length-1 && !wholeDaySelected){
+    wholeDaySelected = true;
+    if (wholeDaySelected) selectedBlockTimes.clear();
+  }
+  else{
+    wholeDaySelected = false; // ek specific time chunna whole-day ko cancel kar deta hai
+    selectedBlockTimes.has(time) ? selectedBlockTimes.delete(time) : selectedBlockTimes.add(time);
+  }
+  renderBlockTimeChips();
+});
+
+//clear button
+document.getElementById('clearAllTimesBtn').addEventListener('click', () => {
+  selectedBlockTimes.clear();
+  wholeDaySelected = false;
+  renderBlockTimeChips();
+});
+
+//day change kya tou
+document.getElementById('blockDay').addEventListener('change', () => {
+  selectedBlockTimes.clear();   // naya din = purani selection irrelevant ho jaati hai
+  wholeDaySelected = false;
+  renderBlockTimeChips();
+});
+
+//toggling home service to shop
 document.getElementById('blockedTypeToggle').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
   document.querySelectorAll('#blockedTypeToggle button').forEach((b) => b.classList.remove('is-active'));
   btn.classList.add('is-active');
   currentBlockedType = btn.dataset.type;
-  populateBlockTimeDropdown();
+  selectedBlockTimes.clear();
+  wholeDaySelected = false;
+
+  renderBlockTimeChips();
   renderBlockedTable();
   renderWeeklyGrid();
 });
 
-// The Time dropdown only offers times that actually exist in that
-// type's Default Schedule — you can't block a time that was never open.
-function populateBlockTimeDropdown() {
-  const select = document.getElementById('blockTime');
-  const schedule = defaultSchedules[currentBlockedType];
-
-  select.innerHTML = '<option value="whole_day">Whole Day</option>';
-  if (schedule) {
-    schedule.times.forEach((t) => {
-      const opt = document.createElement('option');
-      opt.value = t;
-      opt.textContent = formatTime12h(t);
-      select.appendChild(opt);
-    });
-  }
-}
-
-document.getElementById('addBlockBtn').addEventListener('click', () => {
+//final add block button + api call
+document.getElementById('addBlockBtn').addEventListener('click', async () => {
   const day = document.getElementById('blockDay').value;
-  const time = document.getElementById('blockTime').value;
   const type = currentBlockedType;
+  clearFormMessage(formMessageBlockSlots);
 
-  const alreadyExists = blockedSlots.some((b) => b.type === type && b.day === day && b.time === time);
-  if (alreadyExists) return;
+  if (!wholeDaySelected && selectedBlockTimes.size === 0) {
+    showFormMessage(formMessageBlockSlots, 'Select atleast one option', 'error');
+    return;
+  }
 
-  blockedSlots.push({ id: nextBlockId++, type, day, time });
+  // Whole Day ho toh sirf ek entry, warna har selected time ke liye ek —
+  // yehi loop-and-collect pattern hai jo humne Default Schedule save karte waqt use kiya tha
+  
+  const timesToBlock = wholeDaySelected ? ['whole_day'] : [...selectedBlockTimes];
+
+  try {
+    const response = await protectedFetch('http://localhost:4000/api/v1/schedule/block-slots', {
+      method: 'POST',
+      body: {type, day, timesToBlock}
+    })
+    const res = await response.json();
+    if(!response.ok){
+      showFormMessage(formMessageBlockSlots, res.message, 'error');
+      return;    
+    } 
+  }catch (error) {
+    showFormMessage(formMessageBlockSlots, error?.message || "Something went wrong try again later !", 'error');
+    console.log(error?.message);
+    return;
+  }
+
+  blockedSlots = await getBlockSlots();
+
+  selectedBlockTimes.clear();
+  wholeDaySelected = false;
+
+  //re redner chips + weekly schedule + blocked table
+  renderBlockTimeChips();
   renderBlockedTable();
   renderWeeklyGrid();
 });
 
+//Blocked table rendering with html (Not weekly grid)
 function renderBlockedTable() {
   const tbody = document.getElementById('blockedTableBody');
   const rows = blockedSlots.filter((b) => b.type === currentBlockedType);
 
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">Nothing blocked yet everything in the default schedule is open.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">Nothing blocked yet.</td></tr>`;
     return;
   }
-
   tbody.innerHTML = rows
     .map(
       (b) => `
@@ -474,41 +653,90 @@ function renderBlockedTable() {
         <td class="cell-muted">${b.type === 'home_service' ? 'Home Service' : 'At Shop'}</td>
         <td>${b.day === 'all' ? 'All Days' : DAY_LABELS[b.day]}</td>
         <td>${b.time === 'whole_day' ? 'Whole Day' : formatTime12h(b.time)}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removeBlock(${b.id})">Remove</button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeBlock('${b.type}', '${b.day}', '${b.time}')">Remove</button></td>
       </tr>`
     )
     .join('');
 }
 
-// MOCK — becomes: DELETE /api/admin/blocks/:id
-function removeBlock(id) {
-  blockedSlots = blockedSlots.filter((b) => b.id !== id);
+//Remove button for table individual slots
+window.removeBlock = async function (type, day, time) {
+
+  try {
+    const response = await protectedFetch(`http://localhost:4000/api/v1/schedule/remove-block-slots`, {
+      method: 'DELETE',
+      body: {type, day, time}
+    })
+    const res = await response.json();
+    if(!response.ok){
+      showFormMessage(formMessageBlockSlots, res.message, 'error');
+      return;    
+    } 
+  } catch (error) {
+    showFormMessage(formMessageBlockSlots, error?.message || "Something went wrong try again later !", 'error');
+    console.log(error?.message);
+    return;
+  }
+
+  blockedSlots = await getBlockSlots();
+  
+  renderBlockTimeChips();
   renderBlockedTable();
   renderWeeklyGrid();
 }
 
-// ---------- Weekly availability grid — the visual payoff of "reverse availability" ----------
 function isSlotBlocked(type, day, time) {
   return blockedSlots.some(
     (b) => b.type === type && (b.day === 'all' || b.day === day) && (b.time === 'whole_day' || b.time === time)
   );
 }
 
+async function getBlockSlots() {
+  try {
+    const response = await protectedFetch('http://localhost:4000/api/v1/schedule/get-block-slots', {
+      method: 'GET'
+    });
+
+    if(!response.ok){
+      showFormMessage(formMessageBlockSlots, response.message, 'error');
+      return [];
+    }
+    const result = await response.json();
+    return result.results;
+
+  } catch (error) {
+    showFormMessage(formMessageBlockSlots, error?.message || "Something went wrong try again later ! - Get block schedules", 'error');
+    console.log(error?.message);
+    return [];
+  }
+}
+
+// Ab rows (times) har din alag ho sakte hain, isliye grid ki rows
+// "saare open-days ke times ka union" se banti hain, sorted.
+
+//Weekly grid table rendering
 function renderWeeklyGrid() {
   const grid = document.getElementById('weeklyGrid');
   const schedule = defaultSchedules[currentBlockedType];
 
-  if (!schedule) {
-    grid.innerHTML = `<tr><td class="cell-muted" style="padding:24px;">Save a Default Schedule for this type first.</td></tr>`;
+  const allTimesSet = new Set();
+  DAY_ORDER.forEach((day) => {
+    (schedule[day]?.times || []).forEach((t) => allTimesSet.add(t));
+  });
+  const allTimes = [...allTimesSet].sort();
+
+  if (allTimes.length === 0) {
+    grid.innerHTML = `<tr><td class="cell-muted" style="padding:24px;">Default Schedule save karo pehle.</td></tr>`;
     return;
   }
 
   const headerRow = `<tr><th>Time</th>${DAY_ORDER.map((d) => `<th>${DAY_LABELS[d]}</th>`).join('')}</tr>`;
 
-  const bodyRows = schedule.times
+  const bodyRows = allTimes
     .map((time) => {
       const cells = DAY_ORDER.map((day) => {
-        const inSchedule = schedule.days.includes(day);
+        const entry = schedule[day];
+        const inSchedule = entry?.isOpen && entry.times?.includes(time);
         if (!inSchedule) return `<td class="grid-blocked">—</td>`;
         const blocked = isSlotBlocked(currentBlockedType, day, time);
         return blocked ? `<td class="grid-blocked">Blocked</td>` : `<td class="grid-open">✓</td>`;
@@ -519,6 +747,121 @@ function renderWeeklyGrid() {
 
   grid.innerHTML = headerRow + bodyRows;
 }
+
+// ---------- Seed initial state so nothing is empty on first load ----------
+function seedDefaultSchedules() {
+  ['appointment', 'home_service'].forEach((type) => {
+    ensureScheduleShape(type);
+    DAY_ORDER.forEach((day) => {
+      const entry = defaultSchedules[type][day];
+      entry.times = entry.isOpen ? generateTimes(entry.start, entry.end, entry.duration) : [];
+    });
+  });
+}
+
+// ============================================
+// DATE OVERRIDES — one-off exceptions to a specific calendar date
+// Becomes: POST /api/admin/date-overrides, DELETE /api/admin/date-overrides/:id
+// ============================================
+
+let dateOverrides = [];
+let nextOverrideId = 1;
+let currentOverrideType = 'appointment';
+
+// 🔧 core helper — date string se uska day-of-week nikaalta hai,
+// taaki us din ke Default Schedule se sahi times dhoondh sakein.
+function getDayAbbrFromDate(dateStr) {
+  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  const d = new Date(dateStr + 'T00:00:00'); // 'T00:00:00' timezone-shift se bachata hai
+  return days[d.getDay()];
+}
+
+document.getElementById('overrideTypeToggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#overrideTypeToggle button').forEach((b) => b.classList.remove('is-active'));
+  btn.classList.add('is-active');
+  currentOverrideType = btn.dataset.type;
+  populateOverrideTimeDropdown();
+  renderOverridesTable();
+});
+
+// Date badalte hi — us din ke actual schedule-times dropdown mein dikhao
+document.getElementById('overrideDate').addEventListener('change', populateOverrideTimeDropdown);
+
+function populateOverrideTimeDropdown() {
+  const select = document.getElementById('overrideTime');
+  const dateVal = document.getElementById('overrideDate').value;
+  select.innerHTML = '<option value="whole_day">Whole Day</option>';
+
+  if (!dateVal) return;
+
+  const dayAbbr = getDayAbbrFromDate(dateVal);
+  const schedule = defaultSchedules[currentOverrideType]?.[dayAbbr];
+
+  if (!schedule || !schedule.isOpen) return; // us din shop hi band hai — sirf "Whole Day" kaafi hai
+
+  (schedule.times || []).forEach((t) => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = formatTime12h(t);
+    select.appendChild(opt);
+  });
+}
+
+document.getElementById('addOverrideBtn').addEventListener('click', () => {
+  const date = document.getElementById('overrideDate').value;
+  const time = document.getElementById('overrideTime').value;
+  const reason = document.getElementById('overrideReason').value.trim();
+
+  if (!date) {
+    alert('Pehle date select karo.');
+    return;
+  }
+
+  const alreadyExists = dateOverrides.some(
+    (o) => o.type === currentOverrideType && o.date === date && o.time === time
+  );
+  if (alreadyExists) return;
+
+  dateOverrides.push({ id: nextOverrideId++, type: currentOverrideType, date, time, reason });
+  renderOverridesTable();
+
+  document.getElementById('overrideReason').value = '';
+});
+
+function renderOverridesTable() {
+  const tbody = document.getElementById('overridesTableBody');
+  const rows = dateOverrides.filter((o) => o.type === currentOverrideType);
+
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Koi override nahi — sab kuch normal weekly pattern follow karega.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows
+    .map(
+      (o) => `
+      <tr>
+        <td class="cell-muted">${o.type === 'home_service' ? 'Home Service' : 'At Shop'}</td>
+        <td>${o.date}</td>
+        <td class="cell-muted">${DAY_LABELS[getDayAbbrFromDate(o.date)]}</td>
+        <td>${o.time === 'whole_day' ? 'Whole Day' : formatTime12h(o.time)}</td>
+        <td class="cell-muted">${o.reason || '—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeOverride(${o.id})">Remove</button></td>
+      </tr>`
+    )
+    .join('');
+}
+
+function removeOverride(id) {
+  dateOverrides = dateOverrides.filter((o) => o.id !== id);
+  renderOverridesTable();
+}
+
+// Aaj se pehle ki date select hi na ho paye
+document.getElementById('overrideDate').min = new Date().toISOString().split('T')[0];
+
 
 // ============================================
 // SERVICES — POST /api/admin/services, PUT /api/admin/services/:id, DELETE /api/admin/services/:id
@@ -541,11 +884,13 @@ const cancelEditBtn = document.getElementById('cancelEditBtn');
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-//Adding services thingy
+//Adding services thingy - POST
 const serviceForm = document.getElementById('serviceForm');
+const formMessageAddservice = document.getElementById('formMessage-Addservice');
 if (serviceForm) {
   serviceForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    clearFormMessage(formMessageAddservice);
     const name = document.getElementById('serviceName').value.trim();
     const price = Number(document.getElementById('servicePrice').value);
     const duration = document.getElementById('serviceDuration').value.trim();
@@ -563,12 +908,12 @@ if (serviceForm) {
           e.target.reset();
       }else{
         const res = await response.json();
-        showFormMessage(res.message, 'error');
+        showFormMessage(formMessageAddservice, "Failed to add service. Please try again later.", 'error');
         return;
       }
 
     } catch (error) {
-      showFormMessage(error?.message || "Something went wrong try again later !", 'error');
+      showFormMessage(formMessageAddservice, error?.message || "Something went wrong try again later !", 'error');
       console.log(error?.message);
     }
   });
@@ -610,7 +955,7 @@ async function renderServices() {
         return;
       }
   } catch (error) {
-    console.log(error.message || "Service display not working");
+    console.log("Service display not working");
     tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No services yet — add your first one above.</td></tr>`;
   }
 
@@ -659,7 +1004,7 @@ if (editServiceForm) {
         setTimeout(() => {
             renderServices();
             closeEditModal();
-        }, 1500);
+        }, 1200);
       }else{
         showFormMessage(formMessageEditService, "Fail to update service", 'error');
         console.log("Facing issue while editing service")
@@ -732,22 +1077,20 @@ window.openEditModal = openEditModal;
 window.openDeleteModal = openDeleteModal;
 
 // ---------- Init ----------
-renderDayChips();
-loadDefaultScheduleIntoForm('appointment');
-playReveal(document.getElementById('view-dashboard'));
+renderOverridesTable();
+seedDefaultSchedules();
 
-// Seed both types with a sensible starting schedule so the Blocked Slots
-// dropdown/grid aren't empty on first visit — remove this once real data exists.
-document.getElementById('saveDefaultScheduleBtn').click();
-document.getElementById('defaultTypeToggle').querySelector('[data-type="home_service"]').click();
-document.getElementById('saveDefaultScheduleBtn').click();
-document.getElementById('defaultTypeToggle').querySelector('[data-type="appointment"]').click();
+renderScheduleRows('appointment');
+renderDefaultPreview('appointment');
+
+renderServices();
 
 renderBookings();
-populateBlockTimeDropdown();
+
+blockedSlots = await getBlockSlots();
+renderBlockTimeChips();
 renderBlockedTable();
 renderWeeklyGrid();
-renderServices();
 
 // 🔧 Dashboard starts "is-active" directly in the HTML (it never passes
 // through showView()), so it needs its own explicit first reveal here —

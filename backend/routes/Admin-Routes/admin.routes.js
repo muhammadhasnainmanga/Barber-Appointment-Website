@@ -1,17 +1,17 @@
 const express = require('express');
-const AdminRouter = express.Router();
+const AuthadminRouter = express.Router();
 const {checkLogin, logoutUser, rotateAccessToken, changePassword} = require('../../controllers/Admin-Controllers/admin.controller.js');
 const {verifyJWT} = require('../../middleware/auth.middleware.js');
 
-AdminRouter.route('/login').post(checkLogin);
+AuthadminRouter.route('/login').post(checkLogin);
 
-AdminRouter.route('/logout').post(logoutUser);
+AuthadminRouter.route('/logout').post(logoutUser);
 
-AdminRouter.route('/refresh-token').post(rotateAccessToken);
+AuthadminRouter.route('/refresh-token').post(rotateAccessToken);
 
 //Protected route
-AdminRouter.route('/change-password').post(verifyJWT , changePassword);
+AuthadminRouter.route('/change-password').post(verifyJWT , changePassword);
 
 
 
-module.exports = AdminRouter;
+module.exports = AuthadminRouter;

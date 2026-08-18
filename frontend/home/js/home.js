@@ -15,6 +15,7 @@ async function loadServices() {
       const response = await fetch('http://localhost:4000/api/v1/user/get-services', {
         method: 'GET',
         headers: {'Content-Type': 'application/json'},
+        cache: 'no-store'
       });
   
       if(response.ok){
@@ -45,10 +46,9 @@ async function loadServices() {
               )
               .join(''); 
           } 
-        }
-    }catch (error) {
-        servicesGrid.innerHTML = `<div class="services-empty-state">
-          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        }else{
+          servicesGrid.innerHTML = `<div class="services-empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -58,15 +58,22 @@ async function loadServices() {
         </div>`
 
         document.getElementById('retryServicesBtn')?.addEventListener('click', loadServices);
+        }
+    }catch (error) {
+        servicesGrid.innerHTML = `<div class="services-empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Could not load services right now.</p>
+          <button type="button" class="btn btn-primary" id="retryServicesBtn">Try Again</button>
+        </div>`;
+
+        document.getElementById('retryServicesBtn')?.addEventListener('click', loadServices);
+        console.log("Error while getting services for frontend");
     }    
 }
 
 loadServices();
 
-
-// const services = [
-//   { name: 'Haircut', price: 800, duration: '45 min' },
-//   { name: 'Shave', price: 400, duration: '30 min' },
-//   { name: 'Hair cut & Shave', price: 1000, duration: '75 min' }, //fetch query from admin to put more services
-//   { name: 'Massage', price: 500, duration: '30 min' },
-// ];

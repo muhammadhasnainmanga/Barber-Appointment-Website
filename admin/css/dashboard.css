@@ -409,6 +409,10 @@
   margin-bottom: 18px;
 }
 
+/* Add form card error message */
+#formMessage-defaultSchedule{
+  margin-bottom: 0px;
+}
 /* ---------- Type toggle (Shop / Home Service) ---------- */
 .type-toggle {
   display: flex;
@@ -459,10 +463,45 @@
   background: var(--black);
   border-color: var(--black);
   color: var(--white);
+  z-index: -1px;
+}
+
+.day-chip:disabled{
+  cursor: not-allowed;
+  opacity: 0.75;
+  border: rrgba(13, 13, 13, 0.214)
 }
 
 .day-chip.all-days {
   border-style: dashed;
+}
+
+.services-empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 20px 24px;
+  width: 400px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 16px;
+  color: var(--gray-500);
+  margin-left: 4px;
+}
+
+.services-empty-state .empty-icon {
+  width: 25px;
+  height: 25px;
+  margin: 0;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+
+.services-empty-state p {
+  font-size: 0.95rem;
+  margin: 0;
 }
 
 /* ---------- Generated slots preview (Default Schedule) ---------- */
@@ -480,6 +519,88 @@
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--gray-700);
+}
+
+/* ---------- Per-day schedule rows (Default Schedule) ---------- */
+.schedule-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  flex-wrap: wrap;
+}
+
+.schedule-row.is-closed {
+  background: var(--off-white);
+}
+
+.schedule-day-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 90px;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.schedule-day-toggle input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.schedule-time-fields {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.schedule-time-fields input,
+.schedule-time-fields select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  font-family: var(--font);
+  font-size: 0.85rem;
+}
+
+.schedule-time-fields input:disabled,
+.schedule-time-fields select:disabled {
+  opacity: 0.4;
+}
+
+.schedule-time-sep {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+}
+
+/* ---------- Per-day preview rows ---------- */
+.preview-day-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.preview-day-row:last-child { border-bottom: none; }
+
+.preview-day-row strong {
+  width: 44px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
 }
 
 /* ---------- Weekly availability grid (Blocked Slots view) ---------- */
@@ -513,6 +634,38 @@
 
 .grid-open { color: var(--confirmed); font-weight: 700; }
 .grid-blocked { color: var(--gray-500); }
+
+/*Blocked slots click button thing*/
+#addBlockBtn{
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+
+/* More block section css (New things added drop down)*/
+.chip-quick-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.chip-quick-btn {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 10px;
+  margin-top: 6px;
+  margin-bottom: -5px;
+  transition: color var(--transition);
+}
+
+.chip-quick-btn:hover {
+  color: var(--black);
+}
 
 /* ---------- Modal (Change Password) ---------- */
 .modal-overlay {
@@ -584,7 +737,8 @@
   transform: translateY(0);
 }
 
-.modal-overlay {
+
+/* .modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
@@ -627,4 +781,4 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
-}
+} */

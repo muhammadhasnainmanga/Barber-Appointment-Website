@@ -59,6 +59,9 @@
             <button class="side-nav-sub" data-view="slots-blocked">
               <span class="label-text">Blocked Slots</span>
             </button>
+            <button class="side-nav-sub" data-view="slots-overrides">
+              <span class="label-text">Date Overrides</span>
+            </button>
           </div>
         </div>
 
@@ -98,7 +101,7 @@
       <!-- ===================== Dashboard (placeholder) ===================== -->
       <section class="view is-active" id="view-dashboard">
         <div class="view-head" data-reveal data-delay="0"><h2>Dashboard</h2></div>
-        <div class="placeholder-card" data-reveal data-delay="90">Overview widgets go here later quick stats, today's schedule, that kind of thing.</div>
+        <div class="placeholder-card" data-reveal data-delay="0">Overview widgets go here later quick stats, today's schedule, that kind of thing.</div>
       </section>
 
       <!-- ===================== Booking ===================== -->
@@ -126,63 +129,32 @@
       </section>
 
       <!-- ===================== Slots — Default Schedule ===================== -->
-      <section class="view" id="view-slots-default">
-        <div class="view-head" data-reveal data-delay="0"><h2>Default Schedule</h2></div>
+    <section class="view" id="view-slots-default">
+      <div class="view-head" data-reveal data-delay="0"><h2>Default Schedule</h2></div>
 
-        <div class="add-form-card" data-reveal data-delay="90">
-          <span class="eyebrow">Set once; this is the recurring pattern customers see every week</span>
+      <div class="add-form-card" data-reveal data-delay="90">
+        <span class="eyebrow">Har din ka apna start/end/duration ho sakta hai — jo din band rakhna ho, uska "Open" uncheck kar do</span>
 
-          <div class="type-toggle" id="defaultTypeToggle">
-            <button type="button" class="is-active" data-type="appointment">At the Shop</button>
-            <button type="button" data-type="home_service">Home Service</button>
-          </div>
-
-          <div class="form-group">
-            <label>Days</label>
-            <div class="day-chip-row" id="defaultDayChips">
-              <button type="button" class="day-chip all-days" data-day="all">All Days</button>
-              <button type="button" class="day-chip" data-day="mon">Mon</button>
-              <button type="button" class="day-chip" data-day="tue">Tue</button>
-              <button type="button" class="day-chip" data-day="wed">Wed</button>
-              <button type="button" class="day-chip" data-day="thu">Thu</button>
-              <button type="button" class="day-chip" data-day="fri">Fri</button>
-              <button type="button" class="day-chip" data-day="sat">Sat</button>
-              <button type="button" class="day-chip" data-day="sun">Sun</button>
-            </div>
-          </div>
-
-          <div class="add-form-grid">
-            <div class="form-group">
-              <label for="defaultStartTime">Start Time</label>
-              <input type="time" id="defaultStartTime" value="09:00" />
-            </div>
-            <div class="form-group">
-              <label for="defaultEndTime">End Time</label>
-              <input type="time" id="defaultEndTime" value="17:00" />
-            </div>
-            <div class="form-group">
-              <label for="defaultDuration">Slot Duration</label>
-              <select id="defaultDuration">
-                <option value="30">30 min</option>
-                <option value="45">45 min</option>
-                <option value="60" selected>60 min</option>
-                <option value="90">90 min</option>
-                <option value="120">120 min</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="button" class="btn btn-primary" id="saveDefaultScheduleBtn">Save Default Schedule</button>
+        <div class="type-toggle" id="defaultTypeToggle">
+          <button type="button" class="is-active" data-type="appointment">At the Shop</button>
+          <button type="button" data-type="home_service">Home Service</button>
         </div>
 
-        <div class="add-form-card" data-reveal data-delay="180">
-          <h3>Generated Slots Preview</h3>
-          <span class="eyebrow" id="defaultPreviewDays">Applies to: —</span>
-          <div class="slot-chip-row" id="defaultPreviewChips" style="margin-top:14px;">
-            <span class="cell-muted">Set a start/end time and duration above to see the generated times.</span>
-          </div>
+        <div class="schedule-rows" id="defaultScheduleRows" data-reveal data-delay="180">
+          <!-- 7 rows JS se render hongi -->
         </div>
-      </section>
+        <div class="form-message" id="formMessage-defaultSchedule" role="alert" hidden></div>
+        <button type="button" class="btn btn-primary" id="saveDefaultScheduleBtn" style="margin-top:18px;">Save Default Schedule</button>
+      </div>
+
+      <div class="add-form-card">
+        <h3>Generated Slots Preview</h3>
+        <span class="eyebrow">Har din alag se dikh raha hai</span>
+        <div id="defaultPreviewChips" style="margin-top:14px;">
+          <span class="cell-muted">Save karne ke baad yahan har din ke slots dikhenge.</span>
+        </div>
+      </div>
+    </section>
 
       <!-- ===================== Slots — Blocked Slots ===================== -->
       <section class="view" id="view-slots-blocked">
@@ -196,30 +168,34 @@
             <button type="button" data-type="home_service">Home Service</button>
           </div>
 
-          <div class="add-form-grid">
-            <div class="form-group">
-              <label for="blockDay">Day</label>
-              <select id="blockDay">
-                <option value="all">All Days</option>
-                <option value="mon">Mon</option>
-                <option value="tue">Tue</option>
-                <option value="wed">Wed</option>
-                <option value="thu">Thu</option>
-                <option value="fri">Fri</option>
-                <option value="sat">Sat</option>
-                <option value="sun">Sun</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="blockTime">Time</label>
-              <select id="blockTime">
-                <option value="whole_day">Whole Day</option>
-                <!-- specific times injected by dashboard.js, pulled from the default schedule -->
-              </select>
-            </div>
-            <button type="button" class="btn btn-primary" id="addBlockBtn">Block This</button>
+                  <div class="add-form-grid" style="margin-bottom: 4px;">
+          <div class="form-group">
+            <label for="blockDay">Day</label>
+            <select id="blockDay">
+              <option value="all">All Days</option>
+              <option value="mon">Mon</option>
+              <option value="tue">Tue</option>
+              <option value="wed">Wed</option>
+              <option value="thu">Thu</option>
+              <option value="fri">Fri</option>
+              <option value="sat">Sat</option>
+              <option value="sun">Sun</option>
+            </select>
           </div>
         </div>
+
+        <div class="form-group">
+          <label>Times to Block</label>
+          <div class="day-chip-row" id="blockTimeChips">
+            <!-- "Whole Day" + individual time chips JS se render honge -->
+          </div>
+          <div class="chip-quick-actions">
+            <button type="button" class="chip-quick-btn" id="clearAllTimesBtn">Clear</button>
+          </div>
+        </div>
+
+        <div class="form-message" id="formMessage-Block-slots" role="alert" hidden style="margin-top:14px;"></div>
+        <button type="button" class="btn btn-primary" id="addBlockBtn">Block Selected</button>
 
         <div class="data-card" data-reveal data-delay="180">
           <table class="data-table">
@@ -236,6 +212,47 @@
           <div class="weekly-grid-wrap" style="margin-top:14px;">
             <table class="weekly-grid" id="weeklyGrid"></table>
           </div>
+        </div>
+      </section>
+
+      <!-- ===================== Slots — Overrides Slots ===================== -->
+      <section class="view" id="view-slots-overrides">
+        <div class="view-head" data-reveal data-delay="0"><h2>Date Overrides</h2></div>
+
+        <div class="add-form-card" data-reveal data-delay="90">
+          <span class="eyebrow">Ek specific din ko off/adjust karo — baaki har hafte wala pattern chhua nahi jayega</span>
+
+          <div class="type-toggle" id="overrideTypeToggle">
+            <button type="button" class="is-active" data-type="appointment">At the Shop</button>
+            <button type="button" data-type="home_service">Home Service</button>
+          </div>
+
+          <div class="add-form-grid">
+            <div class="form-group">
+              <label for="overrideDate">Date</label>
+              <input type="date" id="overrideDate" />
+            </div>
+            <div class="form-group">
+              <label for="overrideTime">Time</label>
+              <select id="overrideTime">
+                <option value="whole_day">Whole Day</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="overrideReason">Reason (optional)</label>
+              <input type="text" id="overrideReason" placeholder="e.g. Personal emergency" />
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="addOverrideBtn">Add Override</button>
+        </div>
+
+        <div class="data-card" data-reveal data-delay="180">
+          <table class="data-table">
+            <thead>
+              <tr><th>Type</th><th>Date</th><th>Day</th><th>Time</th><th>Reason</th><th></th></tr>
+            </thead>
+            <tbody id="overridesTableBody"></tbody>
+          </table>
         </div>
       </section>
 
@@ -260,6 +277,7 @@
                 <input type="text" id="serviceDuration" placeholder="e.g. 30 min" required />
               </div>
             </div>
+            <div class="form-message" id="formMessage-Addservice" role="alert" hidden></div>
             <button type="submit" class="btn btn-primary">Add Service</button>
           </form>
         </div>
