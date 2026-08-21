@@ -120,15 +120,28 @@ const getBlockSchedules = async (req, res) => {
     }
 }
 
+//Added in the uni
 const postOverridesSchedules = async (req, res)=> {
     try{
-        const {type, date, time, reason} = req.body;
+        const {type, date, time} = req.body;
 
         const db = GetDb();
 
-        
+        if(time === 'whole_day'){
+            await db.promise().query(
+                `DELETE FROM override_schedules WHERE type = ? AND date = ? AND time != 'whole_day'`,
+                [type, date]
+            );
+        }    
+        await db.promise().query(
+            `INSERT IGNORE INTO override_schedules (type, date, time) VALUES (?,?,?)`,
+            [type, date, time]
+        );
+        return res.status(200).json({message: "Date override added successfully"});
+    }catch(error){
+        console.log(error.message || "Error while saving override schedules");
+        res.status(500).json({message : error.message || "Sever Error - saving override schedule"});
     }
-
 }
 
 module.exports = {

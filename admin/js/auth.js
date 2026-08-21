@@ -6,9 +6,8 @@
 // ============================================
 
 (function () {
-  const demoMode = new URLSearchParams(window.location.search).get('demo') === '1';
   const token = localStorage.getItem('szcutz_admin_token');
-  if (!token && !demoMode) {
+  if (!token) {
     window.location.href = 'login.html';
   }
 })();
