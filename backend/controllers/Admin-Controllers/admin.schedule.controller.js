@@ -58,13 +58,13 @@ const postBlockSchedules = async (req, res) => {
         const {type, day, timesToBlock} = req.body;
 
         const db = GetDb();
-        console.log(timesToBlock);
+        // console.log(timesToBlock);
         if(timesToBlock[0] === 'whole_day'){
             const res = await db.promise().query(
                 `DELETE FROM block_slots WHERE type = ? AND day = ? AND time != 'whole_day'`,
                 [type, day]
             );
-            console.log(res);
+            // console.log(res);
             await db.promise().query(
                 `INSERT IGNORE INTO block_slots (type, day, time) VALUES (?, ?, 'whole_day')`,
                 [type, day]
@@ -120,11 +120,22 @@ const getBlockSchedules = async (req, res) => {
     }
 }
 
+const postOverridesSchedules = async (req, res)=> {
+    try{
+        const {type, date, time, reason} = req.body;
+
+        const db = GetDb();
+
+        
+    }
+
+}
 
 module.exports = {
     postDefaultSchedules,
     postBlockSchedules,
     removeBlockSchedules,
     getBlockSchedules,
-    getDefaultSchedules
+    getDefaultSchedules,
+    postOverridesSchedules
 }

@@ -800,6 +800,7 @@ function renderWeeklyGrid() {
 let dateOverrides = [];
 let nextOverrideId = 1;
 let currentOverrideType = 'appointment';
+const formMessageOverridesSlots = document.getElementById('formMessage-Overrides-slots');
 
 //getting day from the written date
 function getDayAbbrFromDate(dateStr) {
@@ -842,16 +843,20 @@ function populateOverrideTimeDropdown() {
   });
 }
 
-const formMessageOverridesSlots = document.getElementById('formMessage-Overrides-slots');
 
-document.getElementById('addOverrideBtn').addEventListener('click', () => {
+
+document.getElementById('addOverrideBtn').addEventListener('click', async() => {
   const date = document.getElementById('overrideDate').value;
   const time = document.getElementById('overrideTime').value;
   const reason = document.getElementById('overrideReason').value.trim();
+  const type = currentOverrideType;
   clearFormMessage(formMessageOverridesSlots);
 
   if (!date) {
     showFormMessage(formMessageOverridesSlots, "Select a date first", 'error');
+    setInterval(() => {
+    clearFormMessage(formMessageOverridesSlots);
+    }, 2000);
     return;
   }
 
@@ -866,12 +871,35 @@ document.getElementById('addOverrideBtn').addEventListener('click', () => {
   return;
   }
 
+  try{
+    const response = await protectedFech('http://localhost:4000/api/v1/schedule/post-date-overrides', {
+      method: 'POST',
+      body: JSON.stringify({type, date, time, reason })
+    });
+
+    const res = await response.json();
+    if(!response.ok){
+      showFormMessage(formMessageOverridesSlots, res.message || "Error while adding date override", 'error');
+      console.log(res.message || "Error while adding date override");
+      return;
+    }
+
+  }catch (error) {
+    console.error('Error while adding date override', error);
+    showFormMessage(formMessageOverridesSlots, "Error while adding date override", 'error');
+    setInterval(() => {
+      clearFormMessage(formMessageOverridesSlots);
+    }, 2000);
+    return;
+  }
+
   dateOverrides.push({ id: nextOverrideId++, type: currentOverrideType, date, time, reason });
   renderOverridesTable();
 
   document.getElementById('overrideReason').value = '';
 });
 
+//for rendering the table of overrides
 function renderOverridesTable() {
   const tbody = document.getElementById('overridesTableBody');
   const rows = dateOverrides.filter((o) => o.type === currentOverrideType);
