@@ -26,7 +26,7 @@ const verifyJWT = async (req, res, next) => {
             })
         }else
             if(error.name  === 'JsonWebTokenError'){
-                console.log("Loure lag gaye");
+                console.log("Fake json token error");
                 return res.status(401).json({
                 code : "ACCESS_TOKEN_INVALID",
                 message : "Invlaid token"

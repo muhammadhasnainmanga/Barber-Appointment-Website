@@ -278,15 +278,51 @@ function changeStatus(id, newStatus) {
 //duration
 const DURATION_OPTIONS = [30, 60, 90, 120, 150, 180];
 
-//twp types
+let currentDefaultType = 'appointment';
+const formMessagedefaultSchedule = document.getElementById('formMessage-defaultSchedule');
+
 let defaultSchedules = {
   appointment: {},
   home_service: {},
 };
 
-//default type
-let currentDefaultType = 'appointment';
-const formMessagedefaultSchedule = document.getElementById('formMessage-defaultSchedule');
+async function getDefaultSchedulesFromServer() {
+  try {
+    const response = await protectedFetch('http://localhost:4000/api/v1/schedule/get-schedule', {
+      method: 'GET'
+    })
+    const result = await response.json();
+
+    if(!response.ok){
+      showFormMessage(formMessagedefaultSchedule, response.message, 'error');
+      return [];    
+    }
+    // console.log(result.results);
+    return result.results;
+  }catch (error) {
+    showFormMessage(formMessagedefaultSchedule, error?.message || "Something went wrong try again later !", 'error');
+    console.log(error?.message);
+    return[];
+  }
+}
+
+async function loadDefaultSchedules() { 
+  ['appointment', 'home_service'].forEach((type) => ensureScheduleShape(type)); // pehle saare 7 din defaults se bhar do
+
+  const rows = await getDefaultSchedulesFromServer();
+
+  rows.forEach((row) => {
+    // if(row.is_open){
+    const entry = defaultSchedules[row.type][row.day];
+    entry.isOpen = !!row.is_open;
+    entry.start = entry.isOpen ? row.start_time?.slice(0, 5) : [];   // 🔧 neeche wajah explain ki hai
+    entry.end = entry.isOpen ? row.end_time?.slice(0, 5) : [];
+    entry.duration = row.slot_duration_minutes;
+    entry.times = entry.isOpen ? generateTimes(entry.start, entry.end, entry.duration) : [];
+    // }
+  });
+
+}
 
 //time generator
 function generateTimes(start, end, durationMin) {
@@ -353,7 +389,6 @@ function renderScheduleRows(type) {
       </div>`;
   }).join('');
 }
-
 //Agr sirf change kya but save nhi kya tou default me save kar dega for easiness
 
 // Event delegation — one listener handles all 7 rows, since they're
@@ -366,7 +401,14 @@ document.getElementById('defaultScheduleRows').addEventListener('change', (e) =>
 
   if (e.target.classList.contains('schedule-open-checkbox')) {
     entry.isOpen = e.target.checked;
-    renderScheduleRows(currentDefaultType); // re-render so fields enable/disable visually
+    if (entry.isOpen && (!entry.start || !entry.end || !entry.duration)) {
+      const fallback = defaultDayEntry();
+      entry.start = entry.start || fallback.start;
+      entry.end = entry.end || fallback.end;
+      entry.duration = entry.duration || fallback.duration;
+    }
+
+    renderScheduleRows(currentDefaultType);
     return;
   }
   if (e.target.classList.contains('schedule-start')) entry.start = e.target.value;
@@ -384,7 +426,7 @@ document.getElementById('defaultTypeToggle').addEventListener('click', (e) => {
   renderDefaultPreview(currentDefaultType);
 });
 
-//the one which we see below sample kind a thing
+//the one which we see below sample kind a thing - niche jo sample rows hain wo
 function renderDefaultPreview(type) {
   const schedule = defaultSchedules[type];
   const container = document.getElementById('defaultPreviewChips');
@@ -748,16 +790,7 @@ function renderWeeklyGrid() {
   grid.innerHTML = headerRow + bodyRows;
 }
 
-// ---------- Seed initial state so nothing is empty on first load ----------
-function seedDefaultSchedules() {
-  ['appointment', 'home_service'].forEach((type) => {
-    ensureScheduleShape(type);
-    DAY_ORDER.forEach((day) => {
-      const entry = defaultSchedules[type][day];
-      entry.times = entry.isOpen ? generateTimes(entry.start, entry.end, entry.duration) : [];
-    });
-  });
-}
+
 
 // ============================================
 // DATE OVERRIDES — one-off exceptions to a specific calendar date
@@ -768,12 +801,11 @@ let dateOverrides = [];
 let nextOverrideId = 1;
 let currentOverrideType = 'appointment';
 
-// 🔧 core helper — date string se uska day-of-week nikaalta hai,
-// taaki us din ke Default Schedule se sahi times dhoondh sakein.
+//getting day from the written date
 function getDayAbbrFromDate(dateStr) {
   const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  const d = new Date(dateStr + 'T00:00:00'); // 'T00:00:00' timezone-shift se bachata hai
-  return days[d.getDay()];
+  const d = new Date(dateStr + 'T00:00:00'); // 'T00:00:00' timezone-shift se bachata hai and set to like strt of the day
+  return days[d.getDay()]; //return 7 days of the week
 }
 
 document.getElementById('overrideTypeToggle').addEventListener('click', (e) => {
@@ -789,6 +821,7 @@ document.getElementById('overrideTypeToggle').addEventListener('click', (e) => {
 // Date badalte hi — us din ke actual schedule-times dropdown mein dikhao
 document.getElementById('overrideDate').addEventListener('change', populateOverrideTimeDropdown);
 
+//creating time options according to the date
 function populateOverrideTimeDropdown() {
   const select = document.getElementById('overrideTime');
   const dateVal = document.getElementById('overrideDate').value;
@@ -809,20 +842,29 @@ function populateOverrideTimeDropdown() {
   });
 }
 
+const formMessageOverridesSlots = document.getElementById('formMessage-Overrides-slots');
+
 document.getElementById('addOverrideBtn').addEventListener('click', () => {
   const date = document.getElementById('overrideDate').value;
   const time = document.getElementById('overrideTime').value;
   const reason = document.getElementById('overrideReason').value.trim();
+  clearFormMessage(formMessageOverridesSlots);
 
   if (!date) {
-    alert('Pehle date select karo.');
+    showFormMessage(formMessageOverridesSlots, "Select a date first", 'error');
     return;
   }
 
   const alreadyExists = dateOverrides.some(
     (o) => o.type === currentOverrideType && o.date === date && o.time === time
   );
-  if (alreadyExists) return;
+  if (alreadyExists){
+  showFormMessage(formMessageOverridesSlots, "Selected date and time are already blocked", 'error');
+  setInterval(() => {
+    clearFormMessage(formMessageOverridesSlots);
+  }, 2000);
+  return;
+  }
 
   dateOverrides.push({ id: nextOverrideId++, type: currentOverrideType, date, time, reason });
   renderOverridesTable();
@@ -854,7 +896,7 @@ function renderOverridesTable() {
     .join('');
 }
 
-function removeOverride(id) {
+window.removeOverride = function (id) {
   dateOverrides = dateOverrides.filter((o) => o.id !== id);
   renderOverridesTable();
 }
@@ -1078,19 +1120,19 @@ window.openDeleteModal = openDeleteModal;
 
 // ---------- Init ----------
 renderOverridesTable();
-seedDefaultSchedules();
-
-renderScheduleRows('appointment');
-renderDefaultPreview('appointment');
-
 renderServices();
-
 renderBookings();
+
+(async () => {
+await loadDefaultSchedules();
+renderScheduleRows(currentDefaultType);
+renderDefaultPreview(currentDefaultType);
 
 blockedSlots = await getBlockSlots();
 renderBlockTimeChips();
 renderBlockedTable();
 renderWeeklyGrid();
+})();
 
 // 🔧 Dashboard starts "is-active" directly in the HTML (it never passes
 // through showView()), so it needs its own explicit first reveal here —

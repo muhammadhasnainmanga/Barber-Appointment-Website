@@ -1,11 +1,13 @@
 const express = require('express');
 const scheduleAdminRouter = express.Router();
-const {postDefaultSchedules, postBlockSchedules, removeBlockSchedules, getBlockSchedules} = require('../../controllers/Admin-Controllers/admin.schedule.controller.js');
+const {postDefaultSchedules, getDefaultSchedules, postBlockSchedules, removeBlockSchedules, getBlockSchedules} = require('../../controllers/Admin-Controllers/admin.schedule.controller.js');
 const {verifyJWT} = require('../../middleware/auth.middleware.js');
 
 
 //Protected routes
 scheduleAdminRouter.route('/post-schedule').post(verifyJWT, postDefaultSchedules);
+
+scheduleAdminRouter.route('/get-schedule').get(verifyJWT, getDefaultSchedules);
 
 scheduleAdminRouter.route('/block-slots').post(verifyJWT, postBlockSchedules);
 

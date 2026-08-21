@@ -35,6 +35,24 @@ const postDefaultSchedules = async (req, res) => {
     }
 }
 
+const getDefaultSchedules = async (req, res) => {
+    try {
+        const db = GetDb();
+
+        const [results] = await db.promise().query(
+            `SELECT * FROM default_schedules`
+        );
+        return res.status(200)
+        .json({
+                message: "Blocked scheduled fetched successfully", 
+                results: results
+        });
+    } catch (error) {
+        console.log(error.message || "Error while getting default schedules");
+        res.status(500).json({message : error.message || "Sever Error - getting default schedule"});
+    }
+}
+
 const postBlockSchedules = async (req, res) => {
     try {
         const {type, day, timesToBlock} = req.body;
@@ -101,9 +119,12 @@ const getBlockSchedules = async (req, res) => {
         res.status(500).json({message : error.message || "Sever Error - getting block schedule"});
     }
 }
+
+
 module.exports = {
     postDefaultSchedules,
     postBlockSchedules,
     removeBlockSchedules,
-    getBlockSchedules
+    getBlockSchedules,
+    getDefaultSchedules
 }
