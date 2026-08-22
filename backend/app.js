@@ -33,5 +33,9 @@ const scheduleAdminRouter = require('./routes/Admin-Routes/admin.schedules.route
 app.use('/api/v1/schedule', scheduleAdminRouter);
 
 
+//Apointment
+const appointmentRoutes = require('./routes/Appointment-Routes/appointment.routes.js');
+app.use('/api/v1/appointment', appointmentRoutes);
+
 
 module.exports = app;

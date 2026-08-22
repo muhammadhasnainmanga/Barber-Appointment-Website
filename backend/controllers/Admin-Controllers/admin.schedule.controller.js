@@ -53,28 +53,55 @@ const getDefaultSchedules = async (req, res) => {
     }
 }
 
+//block one
 const postBlockSchedules = async (req, res) => {
     try {
         const {type, day, timesToBlock} = req.body;
 
         const db = GetDb();
-        // console.log(timesToBlock);
-        if(timesToBlock[0] === 'whole_day'){
-            const res = await db.promise().query(
-                `DELETE FROM block_slots WHERE type = ? AND day = ? AND time != 'whole_day'`,
-                [type, day]
-            );
-            // console.log(res);
-            await db.promise().query(
-                `INSERT IGNORE INTO block_slots (type, day, time) VALUES (?, ?, 'whole_day')`,
-                [type, day]
-            );
-        }else{
-            const values = timesToBlock.map((t) => [type, day, t]);
-            await db.promise().query(
+
+        //all day and whole day condition
+        if(day === 'all'){
+            if(timesToBlock[0] === 'whole_day'){
+                await db.promise().query(
+                    `DELETE FROM block_slots WHERE type = ?`,
+                    [type]
+                );
+                await db.promise().query(
+                    `INSERT INTO block_slots (type, day, time) VALUES (?, 'all', 'whole_day')`,
+                    [type]
+                );
+            }else{
+                await db.promise().query(
+                    `DELETE FROM block_slots WHERE type = ? AND time IN (?)`,
+                    [type, timesToBlock]
+                );
+
+                const values = timesToBlock.map((t) => [type, day, t]);
+                await db.promise().query(
                 `INSERT IGNORE INTO block_slots (type, day, time) VALUES ?`,
                 [values]
-            );
+                );
+            }
+        }else{
+            //seperate two condition where whole day and random stuff
+            if(timesToBlock[0] === 'whole_day'){
+                await db.promise().query(
+                    `DELETE FROM block_slots WHERE type = ? AND day = ? AND time != 'whole_day'`,
+                    [type, day]
+                );
+                // console.log(res);
+                await db.promise().query(
+                    `INSERT IGNORE INTO block_slots (type, day, time) VALUES (?, ?, 'whole_day')`,
+                    [type, day]
+                );
+            }else{
+                const values = timesToBlock.map((t) => [type, day, t]);
+                await db.promise().query(
+                    `INSERT IGNORE INTO block_slots (type, day, time) VALUES ?`,
+                    [values]
+                );
+            }
         }
         return res.status(200).json({message: "Block Schedule saved successfully"});
     } catch (error) {
@@ -89,7 +116,7 @@ const removeBlockSchedules = async (req, res) => {
 
         const db = GetDb();
 
-        const [results] = await db.promise().query(
+        await db.promise().query(
             `DELETE FROM block_slots WHERE type = ? AND day = ? AND time = ?`,
             [type, day, time]
         );
@@ -120,8 +147,8 @@ const getBlockSchedules = async (req, res) => {
     }
 }
 
-//Added in the uni
-const postOverridesSchedules = async (req, res)=> {
+//Added in the uni overrides ones
+const postOverridesSchedules = async (req, res) => {
     try{
         const {type, date, time} = req.body;
 
@@ -144,11 +171,50 @@ const postOverridesSchedules = async (req, res)=> {
     }
 }
 
+const deleteOverridesSchedules = async (req, res) => {
+    try {
+        const {type, date, time} = req.body;
+
+        const db = GetDb();
+
+        await db.promise().query(
+            `DELETE FROM override_schedules WHERE type = ? AND date = ? AND time = ?`,
+            [type, date, time]
+        );
+
+        return res.status(200).json({message: "Override Schedule deleted successfully"});
+    } catch (error) {
+        console.log(error.message || "Error while deleting Override schedules");
+        res.status(500).json({message : error.message || "Sever Error - deleting Override schedule"});
+    }
+}
+
+const getOverridesSchedules = async (req, res) => {
+    try {
+        const db = GetDb();
+
+        const [results] = await db.promise().query(
+            `SELECT * FROM override_schedules`
+        );
+
+        return res.status(200)
+        .json({
+                message: "Override scheduled fetched successfully", 
+                results: results
+        });
+    } catch (error) {
+        console.log(error.message || "Error while getting Override schedules");
+        res.status(500).json({message : error.message || "Sever Error - getting Override schedule"});
+    }
+}
+
 module.exports = {
     postDefaultSchedules,
     postBlockSchedules,
     removeBlockSchedules,
     getBlockSchedules,
     getDefaultSchedules,
-    postOverridesSchedules
+    postOverridesSchedules,
+    deleteOverridesSchedules,
+    getOverridesSchedules
 }

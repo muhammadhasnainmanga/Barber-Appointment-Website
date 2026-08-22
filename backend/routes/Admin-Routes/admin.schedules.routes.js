@@ -1,6 +1,6 @@
 const express = require('express');
 const scheduleAdminRouter = express.Router();
-const {postDefaultSchedules, getDefaultSchedules, postBlockSchedules, removeBlockSchedules, getBlockSchedules, postOverridesSchedules} = require('../../controllers/Admin-Controllers/admin.schedule.controller.js');
+const {postDefaultSchedules, getDefaultSchedules, postBlockSchedules, removeBlockSchedules, getBlockSchedules, postOverridesSchedules, deleteOverridesSchedules, getOverridesSchedules} = require('../../controllers/Admin-Controllers/admin.schedule.controller.js');
 const {verifyJWT} = require('../../middleware/auth.middleware.js');
 
 
@@ -21,5 +21,8 @@ scheduleAdminRouter.route('/get-block-slots').get(verifyJWT, getBlockSchedules);
 //overrides schedule routes
 scheduleAdminRouter.route('/post-date-overrides').post(verifyJWT, postOverridesSchedules);
 
+scheduleAdminRouter.route('/remove-override-slots').delete(verifyJWT, deleteOverridesSchedules);
+
+scheduleAdminRouter.route('/get-override-slots').get(verifyJWT, getOverridesSchedules);
 
 module.exports = scheduleAdminRouter;

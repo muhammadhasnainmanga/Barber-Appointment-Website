@@ -7,6 +7,7 @@ const {verifyJWT} = require('../../middleware/auth.middleware.js');
 //Protected routes
 serviceAdminRouter.route('/post-services').post(verifyJWT, postService);
 
+//using for appointmend and admin side both
 serviceAdminRouter.route('/get-services').get(verifyJWT, getService);
 
 serviceAdminRouter.route('/delete-services/:id').delete(verifyJWT, deleteService);

@@ -277,14 +277,14 @@ function changeStatus(id, newStatus) {
 
 //duration
 const DURATION_OPTIONS = [30, 60, 90, 120, 150, 180];
-
-let currentDefaultType = 'appointment';
-const formMessagedefaultSchedule = document.getElementById('formMessage-defaultSchedule');
-
 let defaultSchedules = {
   appointment: {},
   home_service: {},
 };
+
+let currentDefaultType = 'appointment';
+const formMessagedefaultSchedule = document.getElementById('formMessage-defaultSchedule');
+
 
 async function getDefaultSchedulesFromServer() {
   try {
@@ -500,8 +500,7 @@ document.getElementById('saveDefaultScheduleBtn').addEventListener('click', asyn
 // BLOCKED SLOTS — Time dropdown ab Day ke hisaab se bhi badalta hai
 // ============================================
 
-let blockedSlots = [];
-// let nextBlockId = 1;
+let blockedSlots = [];;
 let currentBlockedType = 'appointment';
 let selectedBlockTimes = new Set();   // specific 'HH:MM' strings
 let wholeDaySelected = false;
@@ -535,7 +534,7 @@ function renderBlockTimeChips() {
     <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
 
-    <p>${DAY_LABELS[day]} has no default schedule avaliable.</p>
+   <p>${day === "all" ? "No default schedule available." : `${DAY_LABELS[day]} has no default schedule available.`}</p>
   </div>
   `;
   return;
@@ -798,7 +797,6 @@ function renderWeeklyGrid() {
 // ============================================
 
 let dateOverrides = [];
-let nextOverrideId = 1;
 let currentOverrideType = 'appointment';
 const formMessageOverridesSlots = document.getElementById('formMessage-Overrides-slots');
 
@@ -843,9 +841,7 @@ function populateOverrideTimeDropdown() {
   });
 }
 
-
-
-document.getElementById('addOverrideBtn').addEventListener('click', async() => {
+document.getElementById('addOverrideBtn').addEventListener('click', async () => {
   const date = document.getElementById('overrideDate').value;
   const time = document.getElementById('overrideTime').value;
   const reason = document.getElementById('overrideReason').value.trim();
@@ -854,9 +850,9 @@ document.getElementById('addOverrideBtn').addEventListener('click', async() => {
 
   if (!date) {
     showFormMessage(formMessageOverridesSlots, "Select a date first", 'error');
-    setInterval(() => {
+    setTimeout(() => {
     clearFormMessage(formMessageOverridesSlots);
-    }, 2000);
+    }, 5000);
     return;
   }
 
@@ -865,16 +861,16 @@ document.getElementById('addOverrideBtn').addEventListener('click', async() => {
   );
   if (alreadyExists){
   showFormMessage(formMessageOverridesSlots, "Selected date and time are already blocked", 'error');
-  setInterval(() => {
+  setTimeout(() => {
     clearFormMessage(formMessageOverridesSlots);
-  }, 2000);
+  }, 5000);
   return;
   }
 
   try{
-    const response = await protectedFech('http://localhost:4000/api/v1/schedule/post-date-overrides', {
+    const response = await protectedFetch('http://localhost:4000/api/v1/schedule/post-date-overrides', {
       method: 'POST',
-      body: JSON.stringify({type, date, time, reason })
+      body: {type, date, time, reason}
     });
 
     const res = await response.json();
@@ -887,13 +883,13 @@ document.getElementById('addOverrideBtn').addEventListener('click', async() => {
   }catch (error) {
     console.error('Error while adding date override', error);
     showFormMessage(formMessageOverridesSlots, "Error while adding date override", 'error');
-    setInterval(() => {
+    setTimeout(() => {
       clearFormMessage(formMessageOverridesSlots);
     }, 2000);
     return;
   }
 
-  dateOverrides.push({ id: nextOverrideId++, type: currentOverrideType, date, time, reason });
+  dateOverrides = await getOverrideSlots();
   renderOverridesTable();
 
   document.getElementById('overrideReason').value = '';
@@ -914,19 +910,56 @@ function renderOverridesTable() {
       (o) => `
       <tr>
         <td class="cell-muted">${o.type === 'home_service' ? 'Home Service' : 'At Shop'}</td>
-        <td>${o.date}</td>
+        <td>${o.date.split('T')[0]}</td>
         <td class="cell-muted">${DAY_LABELS[getDayAbbrFromDate(o.date)]}</td>
         <td>${o.time === 'whole_day' ? 'Whole Day' : formatTime12h(o.time)}</td>
         <td class="cell-muted">${o.reason || '—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removeOverride(${o.id})">Remove</button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeOverride('${o.type}', '${o.date}', '${o.time}')">Remove</button></td>
       </tr>`
     )
     .join('');
 }
 
-window.removeOverride = function (id) {
-  dateOverrides = dateOverrides.filter((o) => o.id !== id);
+window.removeOverride = async function (type, date, time) {
+  try {
+    const response = await protectedFetch(`http://localhost:4000/api/v1/schedule/remove-override-slots`, {
+      method: 'DELETE',
+      body: {type, date, time}
+    })
+    const res = await response.json();
+    if(!response.ok){
+      showFormMessage(formMessageOverridesSlots, res.message, 'error');
+      return;    
+    } 
+  } catch (error) {
+    showFormMessage(formMessageOverridesSlots, error?.message || "Something went wrong try again later !", 'error');
+    console.log(error?.message);
+    return;
+  }
+  
+  dateOverrides = await getOverrideSlots();
   renderOverridesTable();
+}
+
+async function getOverrideSlots() {
+  try {
+    const response = await protectedFetch('http://localhost:4000/api/v1/schedule/get-override-slots', {
+      method: 'GET'
+    });
+    const result = await response.json();
+
+    if(!response.ok){
+      showFormMessage(formMessageOverridesSlots, response.message, 'error');
+      return [];
+    }
+    // console.log(result);
+    console.log(result.results);
+    return result.results;
+  } catch (error) {
+    showFormMessage(formMessageOverridesSlots, error?.message || "Something went wrong try again later ! - Get block schedules", 'error');
+    console.log(error?.message);
+    return [];
+  }
 }
 
 // Aaj se pehle ki date select hi na ho paye
@@ -1147,7 +1180,6 @@ window.openEditModal = openEditModal;
 window.openDeleteModal = openDeleteModal;
 
 // ---------- Init ----------
-renderOverridesTable();
 renderServices();
 renderBookings();
 
@@ -1160,6 +1192,9 @@ blockedSlots = await getBlockSlots();
 renderBlockTimeChips();
 renderBlockedTable();
 renderWeeklyGrid();
+
+dateOverrides =  await getOverrideSlots(); 
+renderOverridesTable();
 })();
 
 // 🔧 Dashboard starts "is-active" directly in the HTML (it never passes

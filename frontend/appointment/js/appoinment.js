@@ -1,53 +1,3 @@
-// ============================================
-// SZCUTZ — Appointment page logic
-// Every block below marked "MOCK DATA" or "MOCK SUBMIT" is exactly
-// where a real fetch() call replaces the static array/object once
-// the backend exists. The shape of the data is deliberately written
-// to match what the real API route will return.
-// ============================================
-
-// ---------- Mobile nav toggle (same pattern as home.js) ----------
-const navToggle = document.querySelector('.nav-toggle');
-const mainNav = document.querySelector('.main-nav');
-navToggle.addEventListener('click', () => {
-  mainNav.classList.toggle('open');
-});
-
-// ---------- Read booking type from the URL ----------
-// index.html links here as appointment.html?type=appointment or ?type=home_service
-const params = new URLSearchParams(window.location.search);
-let currentType = params.get('type') === 'home_service' ? 'home_service' : 'appointment';
-
-// ---------- MOCK DATA (shapes match the planned backend routes) ----------
-
-// Will become: GET /api/user/services
-const services = [
-  { id: 'haircut', name: 'Haircut', price: 800, duration: '45 min' },
-  { id: 'shave', name: 'Shave', price: 400, duration: '30 min' },
-];
-
-// Will become: GET /api/user/dates?type=appointment | home_service
-// (separate availability pools, as decided earlier)
-const datesByType = {
-  appointment: [
-    { id: 'd1', label: 'Mon, 27 Jul' },
-    { id: 'd2', label: 'Tue, 28 Jul' },
-  ],
-  home_service: [
-    { id: 'd3', label: 'Wed, 29 Jul' },
-    { id: 'd4', label: 'Thu, 30 Jul' },
-  ],
-};
-
-// Will become: GET /api/user/times/:dateId  (only unbooked slots)
-const timesByDate = {
-  d1: ['1:00 PM', '3:00 PM', '5:00 PM'],
-  d2: ['5:00 PM', '7:00 PM'],
-  d3: ['2:00 PM'],
-  d4: ['4:00 PM', '6:00 PM'],
-};
-
-// ---------- Element references ----------
 const typeToggle = document.getElementById('typeToggle');
 const serviceSelect = document.getElementById('service');
 const dateSelect = document.getElementById('date');
@@ -64,85 +14,33 @@ const formMessage = document.getElementById('formMessage');
 const AppointmentBtn = document.getElementById('appointmentBtn');
 const HomeserviceBtn = document.getElementById('homeserviceBtn');
 
-function showFormMessage(message) {
-  formMessage.textContent = message;
-  formMessage.hidden = false;
+function showFormMessage(el, message, type = 'error') {
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('form-message-success', 'form-message-error');
+  el.classList.add(type === 'success' ? 'form-message-success' : 'form-message-error');
+  el.hidden = false;
 }
 
-function clearFormMessage() {
-  formMessage.textContent = '';
-  formMessage.hidden = true;
+function clearFormMessage(el) {
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('form-message-success', 'form-message-error');
+  el.hidden = true;
 }
 
-// ---------- Populate Services (runs once) ----------
-async function populateServices() {
+const DAY_ABBR_BY_INDEX = ['sun','mon','tue','wed','thu','fri','sat'];
+const params = new URLSearchParams(window.location.search);
+let currentType = params.get('type') === 'home_service' ? 'home_service' : 'appointment';
 
-  try {
-    const response = await fetch('http://localhost:4000/api/v1/user/get-services', {
-      method: 'GET',
-      headers: {'Content-Type': 'application/json'}
-    });
+// ---------- Mobile nav toggle (same pattern as home.js) ----------
+const navToggle = document.querySelector('.nav-toggle');
 
-    if(response.ok){
-      const services = await response.json();
-
-      if(services.length === 0){
-        serviceSelect.innerHTML = '<option value="" disabled selected>No services are avaliable</option>';
-      }else{
-        serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
-        services.forEach((s) => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.dataset.price = s.price;
-        opt.textContent = `${s.name} — PKR ${s.price} (${s.duration})`;
-        serviceSelect.appendChild(opt);
-        });
-      }
-    }
-  }catch (error) {
-    serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
-    console.log("Error while getting services for appointment");
-  }
-}
-
-// ---------- Populate Dates (re-runs whenever type changes) ----------
-function populateDates() {
-  dateSelect.innerHTML = '<option value="" disabled selected>Choose a date</option>';
-  datesByType[currentType].forEach((d) => {
-    const opt = document.createElement('option');
-    opt.value = d.id;
-    opt.textContent = d.label;
-    dateSelect.appendChild(opt);
-  });
-
-  // Date changed meaning → reset whatever time was previously selected
-  timeSelect.innerHTML = '<option value="" disabled selected>Pick a date first</option>';
-  timeSelect.disabled = true;
-}
-
-// ---------- Populate Times (runs when a date is picked) ----------
-dateSelect.addEventListener('change', () => {
-  const slots = timesByDate[dateSelect.value] || [];
-  timeSelect.innerHTML = '<option value="" disabled selected>Choose a time</option>';
-  slots.forEach((t) => {
-    const opt = document.createElement('option');
-    opt.value = t;
-    opt.textContent = t;
-    timeSelect.appendChild(opt);
-  });
-  timeSelect.disabled = slots.length === 0;
+const mainNav = document.querySelector('.main-nav');
+navToggle.addEventListener('click', () => {
+  mainNav.classList.toggle('open');
 });
 
-// ---------- Amount — always derived from the service, never hand-typed ----------
-// (Same trust-boundary rule the backend will enforce: the server recalculates
-// this from service_id too, so a tampered client value can never change the price.)
-serviceSelect.addEventListener('change', () => {
-  const selected = serviceSelect.selectedOptions[0];
-  const price = selected ? selected.dataset.price : null;
-  amountValue.textContent = price ? `PKR ${price}` : 'PKR —';
-});
-
-// ---------- Type toggle (shop visit vs. home service) ----------
 function applyType(type) {
   currentType = type;
 
@@ -155,8 +53,9 @@ function applyType(type) {
   addressField.required = isHomeService;
   locationLink.style.display = isHomeService ? 'none' : '';
 
-  clearFormMessage();
-  populateDates();
+  clearFormMessage(formMessage);
+  //service will be same everytime but dates will change with respect to toggle - so putting this function here
+  populateDates(type);
 }
 
 typeToggle.addEventListener('click', (e) => {
@@ -165,13 +64,196 @@ typeToggle.addEventListener('click', (e) => {
   applyType(btn.dataset.type);
 });
 
+// ---------- Populate Services (runs once) ----------
+async function populateServices() {
+  try {
+    const response = await fetch('http://localhost:4000/api/v1/appointment/get-services', {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'}
+    });
+
+    const services = await response.json();
+    if(!response.ok || services.length === 0){
+      serviceSelect.innerHTML = '<option value="" disabled selected>No services are avaliable</option>';
+      return;
+    }
+
+    serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
+    services.forEach((s) => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.dataset.price = s.price;
+    opt.textContent = `${s.name} — PKR ${s.price} (${s.duration})`;
+    serviceSelect.appendChild(opt);
+    });
+  }catch (error) {
+    serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
+    console.log("Error while getting services for appointment");
+  }
+}
+
+serviceSelect.addEventListener('change', () => {
+  const selected = serviceSelect.selectedOptions[0];
+  const price = selected ? selected.dataset.price : null;
+  amountValue.textContent = price ? `PKR ${price}` : 'PKR —';
+});
+
+// ---------- Date and time  ----------
+function generateTimes(start, end, durationMin) {
+  const times = [];
+  let [h, m] = start.split(':').map(Number);
+  const [endH, endM] = end.split(':').map(Number);
+  let cursor = h * 60 + m;
+  const endCursor = endH * 60 + endM;
+  while (cursor + Number(durationMin) <= endCursor) {
+    const hh = Math.floor(cursor / 60);
+    const mm = cursor % 60;
+    times.push(`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`);
+    cursor += Number(durationMin);
+  }
+  return times;
+}
+
+function toISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function generateAvailableDates(scheduleRows, dayBlock, dateOverride) {
+  // Lookup table banao: 'mon' -> { isOpen, times: [...] }
+  //get all the days mon - sun with avaliable dates from defualt schedule
+  const scheduleByDay = {};
+  scheduleRows.forEach((row) => {
+    scheduleByDay[row.day] = {
+      isOpen: !!row.is_open,
+      times: row.is_open
+        ? generateTimes(row.start_time.slice(0, 5), row.end_time.slice(0, 5), row.slot_duration_minutes)
+        : [],
+    };
+  });
+
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() + 7);   // min-advance booking window
+
+  const results = [];
+
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    const isoDate = toISODate(date);
+    const dayAbbr = DAY_ABBR_BY_INDEX[date.getDay()];
+
+    const daySchedule = scheduleByDay[dayAbbr];
+    if (!daySchedule || !daySchedule.isOpen) continue;   // Step 2 — poora din band
+
+    let availableTimes = {
+      dateId: isoDate,
+      time : [...daySchedule.times]
+    }
+
+    // Step 3a — recurring day/time blocks
+    //yhn par block day where time == whole_day hai ko filter kar rhe
+    const wholeDayBlocked = dayBlock.some(
+      (b) => (b.day === dayAbbr || b.day === 'all') && b.time === 'whole_day'
+    );
+    if (wholeDayBlocked) {
+      availableTimes.time = [];
+    } else {
+      //filtering specific block times here
+      const blockedTimes = dayBlock
+        .filter((b) => b.day === dayAbbr || b.day === 'all')
+        .map((b) => b.time);
+      availableTimes.time = availableTimes.time.filter((t) => !blockedTimes.includes(t));
+    }
+
+    // Step 3b — specific-date overrides
+    const overrideWholeDay = dateOverride.some((o) => o.date === isoDate && o.time === 'whole_day');
+    if (overrideWholeDay) {
+      availableTimes.time = [];
+    } else {
+      //specific time jo block hai override me usko hta rha
+      const overrideTimes = dateOverride.filter((o) => o.date === isoDate).map((o) => o.time);
+      availableTimes.time = availableTimes.time.filter((t) => !overrideTimes.includes(t));
+    }
+
+    //agr upper whole day aya ya single single karke sare times block kar diya us date/day ke tou hum yhn usko result me add nhi karenge
+    if (availableTimes.time.length === 0) continue;   // Step 4 — kuch bacha hi nahi, is date ko dikhao hi mat
+
+    const label = date.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short' });
+    results.push({ id: isoDate, label });
+  }
+  return results;
+}
+
+async function populateDates(type) {
+  timeSelect.innerHTML = '<option value="" disabled selected>Choose a time</option>';
+  timeSelect.disabled = true;
+  try {
+    const response = await fetch(`http://localhost:4000/api/v1/appointment/get-dates/${type}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      dateSelect.innerHTML = '<option value="" disabled selected>Could not load dates</option>';
+      return;
+    }
+
+    const availableDates = generateAvailableDates(result.schedule, result.dayBlock, result.dateOverride);
+    if(availableDates.length === 0){
+      dateSelect.innerHTML = '<option value="" disabled selected>No dates avaliable</option>';
+      return;
+    }
+
+    dateSelect.innerHTML = '<option value="" disabled selected>Choose a date</option>';
+    availableDates.forEach((d) => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.label;
+      dateSelect.appendChild(opt);
+    });
+  } catch (error) {
+    dateSelect.innerHTML = '<option value="" disabled selected>Could not load dates</option>';
+    console.log(error.message || "Error while getting dates for appointment");
+  }
+}
+
+// ---------- Populate Times (runs when a date is picked) ---------- //
+dateSelect.addEventListener('change', async () => {
+  const selectedDate = dateSelect.value;
+  timeSelect.innerHTML = '<option value="" disabled selected>Choose a time</option>';
+  timeSelect.disabled = true;
+
+  try {
+    const response = await fetch(`http://localhost:4000/api/v1/appointment/get-time/${currentType}/${selectedDate}`,{
+      method: 'GET'
+    });
+    const time = await response.json();
+
+    if(!response.ok || time.times.length === 0){
+      timeSelect.innerHTML = '<option value="" disabled selected>Could not load time</option>';
+      return;
+    }
+
+    time.times.forEach((t) => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    timeSelect.appendChild(opt);
+    });
+
+    timeSelect.disabled = false;
+  } catch (error) {
+    timeSelect.innerHTML = '<option value="" disabled selected>Could not load time</option>';
+    console.log(error.message || "Error while getting time for selected date - appointment");
+  }
+});
+
 // ---------- Form submit ----------
-// MOCK SUBMIT — this whole handler's fetch-shaped logic gets replaced by:
-//   const res = await fetch('/api/user/bookings', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ name, phone, serviceId, dateId, time, type, address })
-//   });
 bookingForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
@@ -182,15 +264,15 @@ bookingForm.addEventListener('submit', (e) => {
   const timeVal = timeSelect.value;
 
   if (!name || !phone || !serviceOpt?.value || !dateOpt?.value || !timeVal) {
-    showFormMessage('Please fill every field before confirming.');
+    showFormMessage(formMessage, 'Please fill every field before confirming.', 'error');
     return;
   }
   if (currentType === 'home_service' && !addressField.value.trim()) {
-    showFormMessage('Please add your address for a home service booking.');
+    showFormMessage(formMessage, 'Please add your address for a home service booking.', 'error');
     return;
   }
 
-  clearFormMessage();
+  clearFormMessage(formMessage);
 
   const summary = `
     ${serviceOpt.textContent.split(' — ')[0]} for ${name} on ${dateOpt.textContent} at ${timeVal}.
@@ -211,7 +293,7 @@ bookAnotherBtn.addEventListener('click', () => {
   confirmationPanel.hidden = true;
   AppointmentBtn.disabled = false;
   HomeserviceBtn.disabled = false;
-  clearFormMessage();
+  clearFormMessage(formMessage);
   applyType(currentType);
   amountValue.textContent = 'PKR —';
 });
