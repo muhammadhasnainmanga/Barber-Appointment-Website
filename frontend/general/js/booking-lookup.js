@@ -1,11 +1,3 @@
-// ============================================
-// SZCUTZ — Shared "Check My Booking" modal
-// Reuses the site's [data-reveal] fade+rise CSS (see style.css),
-// but triggers it manually on every open — reveal.js's automatic
-// pass runs before this modal even exists in the DOM, so it can't
-// pick these elements up on its own.
-// ============================================
-
 (function () {
   const modalHTML = `
     <div class="modal-overlay" id="bookingLookupOverlay">
@@ -17,8 +9,8 @@
           <label for="modalLookupPhone">Your Number</label>
           <input type="tel" id="modalLookupPhone" placeholder="03XX XXXXXXX" />
         </div>
-        <button type="button" class="btn btn-primary" id="modalLookupBtn" data-reveal="load" data-delay="270">Find My Booking</button>
         <div class="form-message_Bk" id="formMessage_Bk" role="alert" hidden></div>
+        <button type="button" class="btn btn-primary" id="modalLookupBtn" data-reveal="load" data-delay="270">Find My Booking</button>
         <div class="lookup-result" id="modalLookupResult"></div>
       </div>
     </div>
@@ -33,19 +25,30 @@
   const revealEls = overlay.querySelectorAll('[data-reveal]');
   const formMessage_Bk = document.getElementById('formMessage_Bk');
 
+  function showFormMessage(el, message, type = 'error') {
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('form-message-success', 'form-message-error');
+  el.classList.add(type === 'success' ? 'form-message-success' : 'form-message-error');
+  el.hidden = false;
+ }
 
-  function showFormMessage_Bk(message) {
-    formMessage_Bk.textContent = message;
-    formMessage_Bk.hidden = false;
-  }
+ function clearFormMessage(el) {
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('form-message-success', 'form-message-error');
+  el.hidden = true;
+ }
 
-  function clearFormMessage_Bk() {
-    formMessage_Bk.textContent = '';
-    formMessage_Bk.hidden = true;
-  }
+ function formatTime12h(hhmm) {
+  let [h, m] = hhmm.split(':').map(Number);
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2, '0')} ${suffix}`;
+}
 
   function openModal() {
-    clearFormMessage_Bk();
+    clearFormMessage(formMessage_Bk);
     overlay.classList.add('is-open');
     document.body.style.overflow = 'hidden';
     phoneInput.focus();
@@ -81,18 +84,63 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
   });
-
   
+ lookupBtn.addEventListener('click', async () => {
+  const phone = phoneInput.value.trim();
+  clearFormMessage(formMessage_Bk);
 
-  // MOCK — becomes: GET /api/user/bookings?phone=<value>
-  lookupBtn.addEventListener('click', () => {
-    clearFormMessage_Bk();
-    lookupResult.textContent = ``;
-    const phone = phoneInput.value.trim();
-    if (!phone) {
-      showFormMessage_Bk('Enter the number you booked with.');
+  if (!phone) {
+     showFormMessage(formMessage_Bk, 'Enter the number you booked with.', 'error');
+     return;
+  }
+
+  if(phone.length !== 11){
+    showFormMessage(formMessage_Bk, 'Enter 11 digit phone number', 'error');
+     return;
+  }
+
+  try {
+    const response  = await fetch(`http://localhost:4000/api/v1/appointment/get-booking/${phone}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await response.json()
+    if(!response.ok || result.bookings.length === 0){
+      lookupResult.textContent = ``;
+      showFormMessage(formMessage_Bk, `No bookings are avaliable on ${phone} `, 'error');
       return;
     }
-    lookupResult.textContent = `No live lookup yet — once the backend is connected, this will show any bookings made with ${phone}.`;
+
+    lookupResult.innerHTML = result.bookings
+    .map(
+      (b) => `
+        <div class="lookup-booking-item">
+          <div class="booking-main">
+            <div class="booking-service">
+              ${b.service_name}
+            </div>
+
+            <div class="booking-details">
+              <span>
+                📅 ${b.date}
+              </span>
+              <span>
+                🕒 ${formatTime12h(b.time)}
+              </span>
+            </div>
+          </div>
+
+          <div class="booking-status ${b.status.toLowerCase()}">
+            ${b.status}
+          </div>
+        </div>
+      `
+    )
+    .join('');
+    
+  } catch (error) {
+    showFormMessage(formMessage_Bk, 'Server error. Try again later. Booking lookup', 'error');
+    console.log(error.message || 'Error while looking up bookings');
+  }
   });
 })();

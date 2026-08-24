@@ -140,16 +140,12 @@ function toggleAccordion(key) {
 }
 
 document.querySelectorAll('.accordion-toggle').forEach((btn) => {
+  console.log(btn.dataset.accordion);
   btn.addEventListener('click', () => toggleAccordion(btn.dataset.accordion));
 });
 
-// ============================================
-// REVEAL ANIMATION (fade + rise)
-// Views are shown/hidden by clicks, not scroll, so this replays
-// manually every time — same reset → force-reflow → stagger technique
-// used for the customer-facing "Check My Booking" modal.
-// ============================================
 
+// REVEAL ANIMATION (fade + rise)
 function playReveal(container) {
   if (!container) return;
   const els = container.querySelectorAll('[data-reveal]');
@@ -650,7 +646,6 @@ document.getElementById('addBlockBtn').addEventListener('click', async () => {
   // yehi loop-and-collect pattern hai jo humne Default Schedule save karte waqt use kiya tha
   
   const timesToBlock = wholeDaySelected ? ['whole_day'] : [...selectedBlockTimes];
-
   try {
     const response = await protectedFetch('http://localhost:4000/api/v1/schedule/block-slots', {
       method: 'POST',

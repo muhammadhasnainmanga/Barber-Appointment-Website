@@ -69,11 +69,18 @@ async function getAvailableTimesForDate(currentType, selectedDate) {
     const overrideTimes = overrides.map((o) => o.time);
     times = times.filter((t) => !overrideTimes.includes(t));
   }
+  const [booked] = await db.promise().query(
+    `SELECT time FROM bookings WHERE date = ? AND type = ? AND status != 'cancelled'`,
+    [selectedDate, currentType]
+  );
+  if(booked.length !== 0){
+  const bookedTimes = booked.map((b) => b.time);
+  times = times.filter((t) => !bookedTimes.includes(t));
+  }
+
+
   const formattedTimes = times.map((t) => formatTime12h(t));
-  // Check 4 (TODO — booking system banne ke baad):
-  // yahan ek query add hogi 'bookings' table se, is exact date pe
-  // already-booked times ko bhi `times` se filter out karne ke liye
-  return formattedTimes;
+  return {formattedTimes, times};
 }
 
 module.exports = { getAvailableTimesForDate };

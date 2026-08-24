@@ -29,6 +29,28 @@ function clearFormMessage(el) {
   el.hidden = true;
 }
 
+function getDay(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.getDay();
+}
+
+function formatTime24h(time) {
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':');
+
+    hours = Number(hours);
+
+    if (modifier === 'PM' && hours !== 12) {
+        hours += 12;
+    }
+
+    if (modifier === 'AM' && hours === 12) {
+        hours = 0;
+    }
+
+    return `${String(hours).padStart(2, '0')}:${minutes}`;
+}
+
 const DAY_ABBR_BY_INDEX = ['sun','mon','tue','wed','thu','fri','sat'];
 const params = new URLSearchParams(window.location.search);
 let currentType = params.get('type') === 'home_service' ? 'home_service' : 'appointment';
@@ -87,7 +109,7 @@ async function populateServices() {
     serviceSelect.appendChild(opt);
     });
   }catch (error) {
-    serviceSelect.innerHTML = '<option value="" disabled selected>Choose a service</option>';
+    serviceSelect.innerHTML = '<option value="" disabled selected>Could not load services</option>';
     console.log("Error while getting services for appointment");
   }
 }
@@ -254,14 +276,21 @@ dateSelect.addEventListener('change', async () => {
 });
 
 // ---------- Form submit ----------
-bookingForm.addEventListener('submit', (e) => {
+bookingForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const name = document.getElementById('fullName').value.trim();
   const phone = document.getElementById('phone').value.trim();
+
   const serviceOpt = serviceSelect.selectedOptions[0];
+
   const dateOpt = dateSelect.selectedOptions[0];
-  const timeVal = timeSelect.value;
+  const timeVal = formatTime24h(timeSelect.value);
+ 
+
+  const day = DAY_ABBR_BY_INDEX[getDay(dateOpt.value)];
+  clearFormMessage(formMessage);
+
 
   if (!name || !phone || !serviceOpt?.value || !dateOpt?.value || !timeVal) {
     showFormMessage(formMessage, 'Please fill every field before confirming.', 'error');
@@ -272,19 +301,41 @@ bookingForm.addEventListener('submit', (e) => {
     return;
   }
 
-  clearFormMessage(formMessage);
+  try {
+    const response = await fetch(`http://localhost:4000/api/v1/appointment/post-booking`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: currentType, 
+        name: name, 
+        phone: phone, 
+        serviceId: serviceOpt.value, 
+        date: dateOpt.value, 
+        day: day,
+        time: timeVal,
+        address: currentType === 'home_service' ? addressField.value.trim() : null,
+      })
+    });
 
-  const summary = `
-    ${serviceOpt.textContent.split(' — ')[0]} for ${name} on ${dateOpt.textContent} at ${timeVal}.
+    if(!response.ok){
+      showFormMessage(formMessage, "Failed to book - try again", 'error');
+      return
+    }
+
+     const summary = `
+    ${serviceOpt.textContent.split(' — ')[0]} for ${name} on ${dateOpt.textContent} at ${timeSelect.value}.
     ${currentType === 'home_service' ? "We'll come to you." : 'See you at the shop.'}
-  `;
+    `;
 
-  bookingForm.hidden = true;
-  confirmationPanel.hidden = false;
-  confirmationSummary.textContent = summary.trim();
-  AppointmentBtn.disabled = true;
-  HomeserviceBtn.disabled = true;
-
+    bookingForm.hidden = true;
+    confirmationPanel.hidden = false;
+    confirmationSummary.textContent = summary.trim();
+    AppointmentBtn.disabled = true;
+    HomeserviceBtn.disabled = true;
+  } catch (error) {
+    showFormMessage(formMessage, error.message || "Server error - Please try again later", 'error');
+    console.log(error.message || "Error while saving booking");
+  }
 });
 
 bookAnotherBtn.addEventListener('click', () => {

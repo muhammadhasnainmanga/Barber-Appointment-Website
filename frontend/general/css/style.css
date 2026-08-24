@@ -461,6 +461,91 @@ a {
   letter-spacing: 0.05rem;
 }
 
+.lookup-result {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lookup-booking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 16px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lookup-booking-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.booking-main {
+  min-width: 0;
+}
+
+.booking-service {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.booking-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: #666;
+}
+
+.booking-status {
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* Status ke according */
+.booking-status.confirmed {
+  background: #e8f7ee;
+  color: #198754;
+}
+
+.booking-status.pending {
+  background: #fff4d6;
+  color: #b77900;
+}
+
+.booking-status.cancelled {
+  background: #fdeaea;
+  color: #dc3545;
+}
+
+.booking-status.completed {
+  background: #e8eefc;
+  color: #3157b7;
+}
+
+@media (max-width: 500px) {
+  .lookup-booking-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .booking-status {
+    align-self: flex-start;
+  }
+}
+
 /* Booking model form  */
 
 .form-grid {
