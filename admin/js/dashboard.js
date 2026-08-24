@@ -199,34 +199,76 @@ document.querySelectorAll('.side-nav-item:not(.accordion-toggle), .side-nav-sub'
 // (Only 3 states now — "Completed" was dropped per the redesign.)
 // ============================================
 
-let bookings = [
-  { id: 1, service: 'Haircut', name: 'Ali Khan', phone: '0300-1234567', date: '2026-08-02', time: '3:00 PM', type: 'appointment', amount: 800, status: 'confirmed' },
-  { id: 2, service: 'Shave', name: 'Bilal Ahmed', phone: '0312-9876543', date: '2026-07-20', time: '5:00 PM', type: 'home_service', amount: 400, status: 'confirmed' },
-  { id: 3, service: 'Haircut', name: 'Usman Tariq', phone: '0333-4567890', date: '2026-07-15', time: '1:00 PM', type: 'appointment', amount: 800, status: 'cancelled' },
-  { id: 4, service: 'Haircut', name: 'Hamza Raza', phone: '0345-1112223', date: '2026-08-05', time: '5:00 PM', type: 'home_service', amount: 800, status: 'pending' },
-];
 
+//Will create a function here jisme get query hoga with all stuff and then wo query phir renderBookings pe call hogi
+async function getBookingsFromServer() {
+  try{
+    const response = await protectedFetch('http://localhost:4000/api/v1/bookings/get-all-bookings', {
+    method: 'GET'
+  });
+  const result = await response.json();
+  if(!response.ok || result.length === 0){
+    console.log("Failed to fetch bookings from server");
+    return [];
+  }
+  return result;
+  }catch(error){
+    console.log("Error while fetching bookings from server");
+    return NULL;
+  }
+}
+
+let bookings;
 let currentStatusFilter = 'confirmed';
 
 function renderBookings() {
   const tbody = document.getElementById('bookingsTableBody');
   const from = document.getElementById('filterFrom').value;
   const to = document.getElementById('filterTo').value;
+  bookings = getBookingsFromServer();
 
-  const filtered = bookings.filter((b) => {
+  //incase of null
+  if(bookings === NULL){
+    tbody.innerHTML =  `
+    <div class="services-empty-state">
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="8" x2="12" y2="12"/>
+    <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+   <p>No bookings available - Server error.</p>
+  </div> //skip this div for not borders
+  `;
+    playReveal(document.getElementById('view-booking'));
+    return;
+  }
+
+  //filterization
+  const filteredBookings = bookings.filter((b) => {
     const statusMatch = currentStatusFilter === 'all' || b.status === currentStatusFilter;
     const afterFrom = !from || b.date >= from;
     const beforeTo = !to || b.date <= to;
     return statusMatch && afterFrom && beforeTo;
   });
 
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr class="empty-row" data-reveal><td colspan="8">No bookings match this filter.</td></tr>`;
-    playReveal(document.getElementById('view-booking'));
-    return;
+  //incase of no bookings
+  if (filteredBookings.length === 0) {
+    tbody.innerHTML =  `
+    <div class="services-empty-state">
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="8" x2="12" y2="12"/>
+    <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+   <p>No ${currentStatusFilter === 'all' ? '' : `${currentStatusFilter}`}bookings available.</p>
+  </div> //skip this div for not borders
+  `;
+  playReveal(document.getElementById('view-booking'));
+  return;
   }
 
-  tbody.innerHTML = filtered
+  //last case bookings
+  tbody.innerHTML = filteredBookings
     .map(
       (b, i) => `
       <tr data-reveal data-delay="${i * 45}">
@@ -261,6 +303,15 @@ document.getElementById('clearDateFilter').addEventListener('click', () => {
 
 // MOCK — becomes: PATCH /api/admin/bookings/:id  { status: newStatus }
 function changeStatus(id, newStatus) {
+  try{
+    const response  = protectedFetch(`http://localhost:4000/api/v1/bookings/update-booking-status/${id}`, {
+    method: 'PATCH',
+    body: {status: newStatus}
+  });
+  
+  }catch(error){
+
+  }
   const booking = bookings.find((b) => b.id === id);
   if (booking) booking.status = newStatus;
   renderBookings();
