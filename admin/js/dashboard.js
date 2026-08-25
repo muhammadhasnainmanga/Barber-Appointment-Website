@@ -140,7 +140,6 @@ function toggleAccordion(key) {
 }
 
 document.querySelectorAll('.accordion-toggle').forEach((btn) => {
-  console.log(btn.dataset.accordion);
   btn.addEventListener('click', () => toggleAccordion(btn.dataset.accordion));
 });
 
@@ -196,9 +195,6 @@ document.querySelectorAll('.side-nav-item:not(.accordion-toggle), .side-nav-sub'
 
 // ============================================
 // BOOKINGS — GET /api/admin/bookings, PATCH /api/admin/bookings/:id
-// (Only 3 states now — "Completed" was dropped per the redesign.)
-// ============================================
-
 
 //Will create a function here jisme get query hoga with all stuff and then wo query phir renderBookings pe call hogi
 async function getBookingsFromServer() {
@@ -207,37 +203,41 @@ async function getBookingsFromServer() {
     method: 'GET'
   });
   const result = await response.json();
-  if(!response.ok || result.length === 0){
+  if(!response.ok){
     console.log("Failed to fetch bookings from server");
-    return [];
+    return "NULL";
   }
-  return result;
+  return result.result;
   }catch(error){
     console.log("Error while fetching bookings from server");
-    return NULL;
+    return "NULL";
   }
 }
 
 let bookings;
 let currentStatusFilter = 'confirmed';
 
-function renderBookings() {
+async function renderBookings() {
   const tbody = document.getElementById('bookingsTableBody');
   const from = document.getElementById('filterFrom').value;
   const to = document.getElementById('filterTo').value;
-  bookings = getBookingsFromServer();
+  bookings = await getBookingsFromServer();
 
   //incase of null
-  if(bookings === NULL){
+  if(bookings === "NULL"){
     tbody.innerHTML =  `
-    <div class="services-empty-state">
-    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="12" y1="8" x2="12" y2="12"/>
-    <line x1="12" y1="16" x2="12.01" y2="16"/>
-    </svg>
-   <p>No bookings available - Server error.</p>
-  </div> //skip this div for not borders
+    <tr>
+      <td class="empty-state-cell" colspan="8">
+        <div class="empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p>No bookings available - Server error.</p>
+        </div>
+      </td>
+    </tr>
   `;
     playReveal(document.getElementById('view-booking'));
     return;
@@ -254,14 +254,18 @@ function renderBookings() {
   //incase of no bookings
   if (filteredBookings.length === 0) {
     tbody.innerHTML =  `
-    <div class="services-empty-state">
-    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="12" y1="8" x2="12" y2="12"/>
-    <line x1="12" y1="16" x2="12.01" y2="16"/>
-    </svg>
-   <p>No ${currentStatusFilter === 'all' ? '' : `${currentStatusFilter}`}bookings available.</p>
-  </div> //skip this div for not borders
+    <tr>
+      <td class="empty-state-cell" colspan="8">
+        <div class="empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p>No ${currentStatusFilter === 'all' ? '' : `${currentStatusFilter} `}bookings available.</p>
+        </div>
+      </td>
+    </tr>
   `;
   playReveal(document.getElementById('view-booking'));
   return;
@@ -271,20 +275,29 @@ function renderBookings() {
   tbody.innerHTML = filteredBookings
     .map(
       (b, i) => `
-      <tr data-reveal data-delay="${i * 45}">
+      <tr data-booking-id="${b.id}" data-reveal data-delay="${i * 45}">
         <td class="cell-muted">#${b.id}</td>
-        <td>${b.service}</td>
+        <td>${b.service_name}</td>
         <td>${b.name}</td>
         <td class="cell-muted">${b.phone}</td>
-        <td>${b.date} · ${b.time}</td>
+        <td>${b.date} · ${formatTime12h(b.time)}</td>
         <td class="cell-muted">${b.type === 'home_service' ? 'Home Service' : 'At Shop'}</td>
         <td>PKR ${b.amount}</td>
         <td>
-          <select class="status-select ${b.status}" onchange="changeStatus(${b.id}, this.value)">
-            <option value="pending" ${b.status === 'pending' ? 'selected' : ''}>🟡 Pending</option>
-            <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>🟢 Confirmed</option>
-            <option value="cancelled" ${b.status === 'cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
-          </select>
+          <div class="status-control">
+            <select class="status-select ${b.status}" onchange="changeStatus(${b.id}, this.value)">
+              <option value="pending" ${b.status === 'pending' ? 'selected' : ''}>🟡 Pending</option>
+              <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>🟢 Confirmed</option>
+              <option value="cancelled" ${b.status === 'cancelled' ? 'selected' : ''}>🔴 Cancelled</option>
+            </select>
+            <span class="status-error-icon" title="Could not update status" aria-label="Could not update status" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </span>
+          </div>
         </td>
       </tr>`
     )
@@ -302,20 +315,39 @@ document.getElementById('clearDateFilter').addEventListener('click', () => {
 });
 
 // MOCK — becomes: PATCH /api/admin/bookings/:id  { status: newStatus }
-function changeStatus(id, newStatus) {
-  try{
-    const response  = protectedFetch(`http://localhost:4000/api/v1/bookings/update-booking-status/${id}`, {
-    method: 'PATCH',
-    body: {status: newStatus}
-  });
-  
-  }catch(error){
-
-  }
+async function changeStatus(id, newStatus) {
   const booking = bookings.find((b) => b.id === id);
-  if (booking) booking.status = newStatus;
-  renderBookings();
+  const row = document.querySelector(`[data-booking-id="${id}"]`);
+  const select = row?.querySelector('.status-select');
+  const errorIcon = row?.querySelector('.status-error-icon');
+  const previousStatus = booking?.status;
+  
+  if (select) select.disabled = true;
+  if (errorIcon) errorIcon.hidden = true;
+
+  try {
+    const response = await protectedFetch(`http://localhost:4000/api/v1/bookings/update-booking-status/${id}`, {
+      method: 'PATCH',
+      body: {status: newStatus}
+    });
+
+    if (!response.ok) {
+      if (select) select.value = previousStatus;
+      if (errorIcon) errorIcon.hidden = false;
+      return;
+    }
+    if (booking) booking.status = newStatus;
+    await renderBookings();
+  } catch (error) {
+    if (select) select.value = previousStatus;
+    if (errorIcon) errorIcon.hidden = false;
+    console.log(error?.message || 'Error while updating booking status');
+  } finally {
+    if (select) select.disabled = false;
+  }
 }
+
+window.changeStatus = changeStatus;
 
 // ============================================
 // DEFAULT SCHEDULE — per (type, day) now, not one rule for many days
@@ -574,15 +606,14 @@ function renderBlockTimeChips() {
  
   if (timesToShow.length === 0) {
   blockTimeChipsEl.innerHTML = `
-    <div class="services-empty-state">
-    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="12" y1="8" x2="12" y2="12"/>
-    <line x1="12" y1="16" x2="12.01" y2="16"/>
-    </svg>
-
-   <p>${day === "all" ? "No default schedule available." : `${DAY_LABELS[day]} has no default schedule available.`}</p>
-  </div>
+    <div class="empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <p>${day === "all" ? "No default schedule available." : `${DAY_LABELS[day]} has no default schedule available.`}</p>
+    </div>
   `;
   return;
   }
@@ -998,8 +1029,6 @@ async function getOverrideSlots() {
       showFormMessage(formMessageOverridesSlots, response.message, 'error');
       return [];
     }
-    // console.log(result);
-    console.log(result.results);
     return result.results;
   } catch (error) {
     showFormMessage(formMessageOverridesSlots, error?.message || "Something went wrong try again later ! - Get block schedules", 'error');
@@ -1226,10 +1255,13 @@ window.openEditModal = openEditModal;
 window.openDeleteModal = openDeleteModal;
 
 // ---------- Init ----------
-renderServices();
-renderBookings();
+
 
 (async () => {
+renderBookings();
+
+renderServices();
+
 await loadDefaultSchedules();
 renderScheduleRows(currentDefaultType);
 renderDefaultPreview(currentDefaultType);

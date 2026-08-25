@@ -377,6 +377,26 @@
 .status-select.confirmed { border-left-color: var(--confirmed); }
 .status-select.cancelled { border-left-color: var(--cancelled); }
 
+.status-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-error-icon {
+  display: inline-flex;
+  color: var(--gray-500);
+}
+
+.status-error-icon[hidden] {
+  display: none;
+}
+
+.status-error-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* ---------- Add-new forms ---------- */
 .add-form-card {
   background: var(--white);
@@ -476,30 +496,29 @@
   border-style: dashed;
 }
 
-.services-empty-state {
-  grid-column: 1 / -1;
+.empty-state {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-
-  padding: 20px 24px;
-  width: 400px;
-  border: 1px dashed var(--border-strong);
-  border-radius: 16px;
   color: var(--gray-500);
-  margin-left: 4px;
+  width: 100%;
+  min-height: 100px;
+  text-align: center;
 }
 
-.services-empty-state .empty-icon {
+.empty-state-cell {
+  padding: 0;
+}
+
+.empty-state .empty-icon {
   width: 25px;
   height: 25px;
   margin: 0;
-  color: #dc2626;
   flex-shrink: 0;
 }
 
-.services-empty-state p {
+.empty-state p {
   font-size: 0.95rem;
   margin: 0;
 }

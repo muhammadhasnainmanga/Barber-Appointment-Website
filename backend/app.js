@@ -38,4 +38,9 @@ const appointmentRoutes = require('./routes/Appointment-Routes/appointment.route
 app.use('/api/v1/appointment', appointmentRoutes);
 
 
+//Bookings
+const bookingRoutes = require('./routes/Admin-Routes/admin.bookings.routes.js');
+app.use('/api/v1/bookings', bookingRoutes);
+
+
 module.exports = app;
