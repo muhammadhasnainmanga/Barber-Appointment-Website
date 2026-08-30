@@ -523,6 +523,11 @@
   margin: 0;
 }
 
+.day-chip-row .empty-state{
+  min-height: 50px;
+}
+
+
 /* ---------- Generated slots preview (Default Schedule) ---------- */
 .slot-chip-row {
   display: flex;
@@ -744,6 +749,458 @@
     display: none;
   }
 }
+
+/* =========================================================
+   GALLERY SECTION
+   ========================================================= */
+
+.gallery-form {
+  margin-top: 20px;
+}
+
+
+/* =========================================================
+   ADD PHOTO FORM LAYOUT
+   ========================================================= */
+
+.gallery-form .add-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+
+  width: 100%;
+  margin: 0;
+}
+
+.gallery-form .form-group {
+  min-width: 0;
+}
+
+
+/* Labels */
+
+.gallery-form .form-group > label:first-child {
+  display: block;
+
+  margin-bottom: 9px;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  color: var(--gray-500);
+}
+
+
+/* =========================================================
+   PHOTO UPLOAD BUTTON
+   ========================================================= */
+
+#galleryLabelInput{
+  margin-bottom: 7px;
+}
+
+.file-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.file-dropzone:hover {
+  background: var(--off-white);
+  border-color: var(--border-strong);
+}
+
+.file-dropzone:focus-within {
+  outline: none;
+
+  border-color: var(--border-strong);
+
+  box-shadow:
+    0 0 0 3px rgba(13, 13, 13, 0.04);
+}
+
+
+/* Upload content */
+
+.file-dropzone-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 13px;
+  min-width: 0;
+  gap: 10px;
+}
+
+
+/* Upload icon */
+
+.file-dropzone-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  color: var(--black);
+}
+
+/* Filename */
+
+.file-dropzone-text {
+  display: block;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--gray-700);
+}
+
+
+/* Hide unnecessary stuff */
+
+.file-dropzone-hint,
+.file-dropzone-action {
+  display: none;
+}
+
+
+/* Selected */
+
+.file-dropzone.has-file {
+  background: var(--off-white);
+  border-color: var(--border-strong);
+}
+
+
+/* =========================================================
+   CAPTION INPUT
+   ========================================================= */
+
+.gallery-form #galleryLabelInput {
+  width: 100%;
+  height: 48px;
+
+  box-sizing: border-box;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+
+  background: var(--white);
+
+  font-family: inherit;
+  font-size: 0.9rem;
+
+  color: var(--gray-700);
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.gallery-form #galleryLabelInput::placeholder {
+  color: var(--gray-500);
+}
+
+.gallery-form #galleryLabelInput:hover {
+  border-color: var(--border-strong);
+}
+
+.gallery-form #galleryLabelInput:focus {
+  outline: none;
+
+  border-color: var(--border-strong);
+
+  box-shadow:
+    0 0 0 3px rgba(13, 13, 13, 0.04);
+}
+
+
+/* =========================================================
+   UPLOAD PROGRESS
+   ========================================================= */
+
+.gallery-form .upload-progress {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: -10px;
+  gap: 14px;
+}
+
+.gallery-form .upload-progress-track {
+  flex: 1;
+  min-width: 0;
+
+  height: 5px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--off-white);
+
+  overflow: hidden;
+}
+
+.gallery-form .upload-progress-fill {
+  width: 0%;
+  height: 100%;
+
+  border-radius: 999px;
+
+  background: var(--black);
+
+  transition: width 120ms linear;
+}
+
+.gallery-form .upload-progress-label {
+  flex: 0 0 auto;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  color: var(--gray-500);
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   ADD TO GALLERY BUTTON
+   ========================================================= */
+
+.gallery-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 18px;
+
+  min-width: 190px;
+  min-height: 50px;
+
+  padding: 0 24px;
+}
+
+
+/* =========================================================
+   FORM MESSAGE
+   ========================================================= */
+
+.gallery-form .form-message {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   GALLERY GRID
+   ========================================================= */
+
+.gallery-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(280px, 1fr));
+
+  gap: 18px;
+
+  width: 100%;
+
+  margin-top: 28px;
+}
+
+
+/* =========================================================
+   GALLERY CARD
+   ========================================================= */
+
+.gallery-card {
+  min-width: 0;
+
+  overflow: hidden;
+
+  background: var(--white);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.gallery-card:hover {
+  border-color: var(--border-strong);
+
+  box-shadow:
+    0 8px 24px rgba(13, 13, 13, 0.045);
+}
+
+
+/* =========================================================
+   GALLERY IMAGE
+   ========================================================= */
+
+.gallery-card-image {
+  display: block;
+
+  width: 100%;
+
+  aspect-ratio: 4 / 3;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   CARD BOTTOM
+   ========================================================= */
+
+.gallery-card-body {
+  display: flex;
+  align-items: center;
+
+  min-width: 0;
+
+  gap: 12px;
+
+  padding: 14px;
+}
+
+
+/* Caption */
+
+.gallery-card-label {
+  flex: 1;
+  min-width: 0;
+
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  color: var(--gray-700);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   EDIT / DELETE
+   ========================================================= */
+
+.gallery-card-actions {
+  display: flex;
+  align-items: center;
+
+  flex: 0 0 auto;
+
+  gap: 7px;
+}
+
+.gallery-card-actions .btn {
+  min-height: 34px;
+
+  padding: 0 12px;
+
+  font-size: 0.72rem;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.gallery-empty-state {
+  grid-column: 1 / -1;
+
+  padding: 50px 24px;
+
+  text-align: center;
+
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+
+  color: var(--gray-500);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .gallery-form .add-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-submit-btn {
+    width: 100%;
+  }
+}
+
+/* ---------- Upload progress bar ---------- */
+.upload-progress {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-progress-track {
+  flex: 1;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--black);
+  border-radius: var(--radius-pill);
+  transition: width 120ms linear;
+}
+
+.upload-progress-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+/* ---------- Gallery card edit/delete row ---------- */
+.gallery-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 /* ---------- Reveal animation (fade + rise) ---------- */
 [data-reveal] {
   opacity: 0;
@@ -755,49 +1212,3 @@
   opacity: 1;
   transform: translateY(0);
 }
-
-
-/* .modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-overlay.is-open {
-  display: flex;
-}
-
-.modal-box {
-  background: #fff;
-  border-radius: 14px;
-  padding: 28px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-}
-
-.modal-box-sm {
-  max-width: 360px;
-}
-
-.modal-box h3 {
-  margin-bottom: 16px;
-  font-size: 1.1rem;
-}
-
-.modal-subtext {
-  color: #6b6b6b;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-} */

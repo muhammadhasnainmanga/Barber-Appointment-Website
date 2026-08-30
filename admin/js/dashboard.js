@@ -229,7 +229,7 @@ async function renderBookings() {
     <tr>
       <td class="empty-state-cell" colspan="8">
         <div class="empty-state">
-          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -257,7 +257,7 @@ async function renderBookings() {
     <tr>
       <td class="empty-state-cell" colspan="8">
         <div class="empty-state">
-          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -607,7 +607,7 @@ function renderBlockTimeChips() {
   if (timesToShow.length === 0) {
   blockTimeChipsEl.innerHTML = `
     <div class="empty-state">
-      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -1107,10 +1107,26 @@ async function renderServices() {
         method: 'GET'
       });
 
-      if(response.ok){
-        const serviceData = await response.json();
-        services = serviceData;
-
+      const serviceData = await response.json();
+      if(!response.ok || serviceData.length === 0){
+        tbody.innerHTML =  `
+          <tr>
+            <td class="empty-state-cell" colspan="8">
+              <div class="empty-state">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <p>No services available - Server error.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      services = serviceData;
         tbody.innerHTML = serviceData
         .map(
           (s) => `
@@ -1127,14 +1143,23 @@ async function renderServices() {
           </tr>`
         )
         .join('');
-        // console.log(services);
-      }else{
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No services yet — add your first one above.</td></tr>`;
-        return;
-      }
   } catch (error) {
     console.log("Service display not working");
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No services yet — add your first one above.</td></tr>`;
+    tbody.innerHTML =  `
+          <tr>
+            <td class="empty-state-cell" colspan="8">
+              <div class="empty-state">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <p>No services available - Server error.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
   }
 
 }

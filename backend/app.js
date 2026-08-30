@@ -1,6 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const cookieparser = require('cookie-parser');
+const path = require('path');
 
 const app = express();
 
@@ -10,9 +11,11 @@ app.use(cors({
     credentials: true,
 }));
 
+
 app.use(express.json());
 app.use(cookieparser());
-
+app.use(express.urlencoded({extended: false}));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 //User side service routes
 const serviceUserRouter = require('./routes/User-Routes/user.routes.js');
@@ -42,5 +45,8 @@ app.use('/api/v1/appointment', appointmentRoutes);
 const bookingRoutes = require('./routes/Admin-Routes/admin.bookings.routes.js');
 app.use('/api/v1/bookings', bookingRoutes);
 
+//File uploading
+const galleryRouter = require('./routes/Admin-Routes/admin.gallery.routes.js');
+app.use('/api/v1/gallery', galleryRouter);
 
 module.exports = app;

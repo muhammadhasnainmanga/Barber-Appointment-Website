@@ -6,20 +6,53 @@
 
 // Get query and will take images
 
-const slides = [
-  { src: '../../../assets/cuts_image/01_Curly_Taper_Fade.jpg', label: 'Curly Taper Fade' },
-  { src: '../../../assets/cuts_image/02_Textured_Crop_Taper_Fade!.jpg', label: 'Textured Crop Taper Fade' },
-  { src: '../../../assets/cuts_image/03_Shag_Wolf_Cut!.jpg', label: 'Shag Wolf Cut' },
-  { src: '../../../assets/cuts_image/04_Textured_Fringe_Low_Fade!.jpg', label: 'Textured Fringe Low Fade' },
-  { src: '../../../assets/cuts_image/05_Low_Taper_Crew_Cut!.jpg', label: 'Low Taper Crew Cut' },
-  { src: '../../../assets/cuts_image/06_Side_Part_Pompadour_Fade!.jpg', label: 'Side Part Pompadour Fade' },
-  { src: '../../../assets/cuts_image/07_Textured_Mullet_Fade!.jpg', label: 'Textured Mullet Fade' },
-  { src: '../../../assets/cuts_image/08_Curly_Fade_Hair_Tattoo_Design.jpg', label: 'Curly Fade Hair Tattoo Design' },
-  { src: '../../../assets/cuts_image/09_Messy_Textured_Crop_Fade!.jpg', label: 'Messy Textured Crop Fade' },
-  { src: '../../../assets/cuts_image/10_Curly_Fringe_Low_Fade.jpg', label: 'Curly Fringe Low Fade' },
-  { src: '../../../assets/cuts_image/11_Curly_Mullet_Fade.jpg', label: 'Curly Mullet Fade' },
-  { src: '../../../assets/cuts_image/12_Buzz_Cut_Hair_Tattoo_Star_Design.jpg', label: 'Buzz Cut Hair Tattoo Star Design' },
-];
+// const slides = [
+//   { src: '../../../assets/cuts_image/01_Curly_Taper_Fade.jpg', label: 'Curly Taper Fade' },
+//   { src: '../../../assets/cuts_image/02_Textured_Crop_Taper_Fade!.jpg', label: 'Textured Crop Taper Fade' },
+//   { src: '../../../assets/cuts_image/03_Shag_Wolf_Cut!.jpg', label: 'Shag Wolf Cut' },
+//   { src: '../../../assets/cuts_image/04_Textured_Fringe_Low_Fade!.jpg', label: 'Textured Fringe Low Fade' },
+//   { src: '../../../assets/cuts_image/05_Low_Taper_Crew_Cut!.jpg', label: 'Low Taper Crew Cut' },
+//   { src: '../../../assets/cuts_image/06_Side_Part_Pompadour_Fade!.jpg', label: 'Side Part Pompadour Fade' },
+//   { src: '../../../assets/cuts_image/07_Textured_Mullet_Fade!.jpg', label: 'Textured Mullet Fade' },
+//   { src: '../../../assets/cuts_image/08_Curly_Fade_Hair_Tattoo_Design.jpg', label: 'Curly Fade Hair Tattoo Design' },
+//   { src: '../../../assets/cuts_image/09_Messy_Textured_Crop_Fade!.jpg', label: 'Messy Textured Crop Fade' },
+//   { src: '../../../assets/cuts_image/10_Curly_Fringe_Low_Fade.jpg', label: 'Curly Fringe Low Fade' },
+//   { src: '../../../assets/cuts_image/11_Curly_Mullet_Fade.jpg', label: 'Curly Mullet Fade' },
+//   { src: '../../../assets/cuts_image/12_Buzz_Cut_Hair_Tattoo_Star_Design.jpg', label: 'Buzz Cut Hair Tattoo Star Design' },
+// ];
+
+async function getSlides() {
+  try {
+    const response = await fetch('http://localhost:4000/api/v1/gallery/get-all', {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'},
+        cache: 'no-store'
+    });
+
+    if(response.ok){
+      const slides = await response.json();
+
+      if (slides.length === 0) {
+        const container = document.getElementById('cardStack');
+        if (!container) return;
+
+        container.innerHTML = `
+          <div class="stack-empty-state" style="display:flex; align-items:center; justify-content:center; min-height: 240px; padding: 2rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; background: rgba(18,18,18,0.35); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);">
+            <div style="text-align:center; max-width: 440px;">
+              <p style="margin:0; font-size: 1rem; letter-spacing:0.08em; text-transform: uppercase; color: rgba(255,255,255,0.7);">Recent Work</p>
+              <h3 style="margin: 0.6rem 0 0.4rem; font-size: clamp(1.5rem, 3vw, 2.2rem);">No cuts uploaded yet</h3>
+              <p style="margin:0; color: rgba(255,255,255,0.68); line-height: 1.7;">Come back soon for fresh fades, tapers, and trims.</p>
+            </div>
+          </div>
+        `;
+      }
+      console.log(slides);
+      return slides;
+    }
+  } catch (error) {
+    console.error('Gallery fetch failed:', error);
+  }
+}
 
 function initCardStack(containerId, items) {
   const container = document.getElementById(containerId);
@@ -140,5 +173,7 @@ function render() {
 
   render();
 }
-
+(async () => {
+const slides = await getSlides();
 initCardStack('cardStack', slides);
+})();
