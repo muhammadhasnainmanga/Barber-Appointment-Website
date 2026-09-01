@@ -1,5 +1,6 @@
 const {ApiError} = require('../../utils/ApiError.utils.js');
 const {GetDb} = require('../../database/connect.db.js');
+const {getAllImages} = require('../../services/getService.js');
 const cloudinaryUploader = require('../../utils/cloudinary.utils.js');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
@@ -38,11 +39,12 @@ const addGalleryItem = async (req, res) => {
 
 const getAllGalleryItems = async (req, res) => {
   try {
-    const db = GetDb();
-    const [rows] = await db.promise().query('SELECT * FROM gallery ORDER BY id DESC');
-    return res.status(200).json({ results: rows });
+      const rows = await getAllImages();
+      return res.status(200).json(rows.length === 0 ? [] : rows);
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      console.log(error?.message || "Error while getting images for admin/user");
+      res.status(error.statusCode || 500).json({message: error.message});
   }
 };
 

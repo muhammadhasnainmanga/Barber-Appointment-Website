@@ -6,6 +6,13 @@ async function findAllServices() {
   return rows;
 }
 
+async function getAllImages() {
+  const db = GetDb();
+  const [rows] = await db.promise().query('SELECT * FROM gallery ORDER BY RAND()');
+  return rows;
+}
+
 module.exports = {
-    findAllServices
+    findAllServices,
+    getAllImages
 }

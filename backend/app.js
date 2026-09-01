@@ -45,8 +45,12 @@ app.use('/api/v1/appointment', appointmentRoutes);
 const bookingRoutes = require('./routes/Admin-Routes/admin.bookings.routes.js');
 app.use('/api/v1/bookings', bookingRoutes);
 
-//File uploading
+//File handling admin
 const galleryRouter = require('./routes/Admin-Routes/admin.gallery.routes.js');
 app.use('/api/v1/gallery', galleryRouter);
+
+//file uploading image user
+const galleryUserRouter = require('./routes/User-Routes/user.gallery.routes.js');
+app.use('/api/v1/user-gallery', galleryUserRouter);
 
 module.exports = app;

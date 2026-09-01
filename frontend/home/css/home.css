@@ -206,6 +206,7 @@
 }
 
 .card-stack {
+  margin-bottom: 80px;
   touch-action: pan-y;
 }
 
@@ -260,7 +261,7 @@
 
 .stack-hint {
   text-align: center;
-  margin-top: 60px;
+  margin-top: 40px;
   font-size: 0.8rem;
   color: var(--gray-500);
 }

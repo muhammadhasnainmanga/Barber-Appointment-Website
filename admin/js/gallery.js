@@ -7,7 +7,6 @@
 import {protectedFetch} from "./auth.ClientApi.js";
 
 let galleryItems = [];
-let nextGalleryId = 1;
 let editingGalleryId = null;
 let deletingGalleryId = null;
 let selectedFileDataUrl = null;   // holds the FileReader result until submit
@@ -200,8 +199,7 @@ async function getGalleryFromServer() {
     const response = await protectedFetch('http://localhost:4000/api/v1/gallery/get-all', { method: 'GET' });
     const result = await response.json();
     if (!response.ok) return [];
-    console.log(result.results);
-    return result.results;
+    return result;
   } catch (error) {
     console.log(error.message);
     return [];

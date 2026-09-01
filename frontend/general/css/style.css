@@ -410,6 +410,7 @@ a {
 
 .modal-card {
   width: min(480px, 90vw);
+  max-height: 80vh;
   background: var(--white);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -417,6 +418,9 @@ a {
   position: relative;
   transform: translateY(14px);
   transition: transform 380ms cubic-bezier(.22, .85, .32, 1); /* 🔧 same curve, thoda zyada distance */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .modal-overlay.is-open .modal-card {
@@ -466,6 +470,11 @@ a {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 46vh;
+  padding-right: 8px;
+  scrollbar-width: thin;
 }
 
 .lookup-booking-item {
@@ -600,7 +609,7 @@ a {
 }
 
 .form-message_Bk {
-  margin-top: 16px;
+  /* margin-top: 16px; */
   margin-bottom: 16px;
   padding: 12px 14px;
   border-radius: 10px;

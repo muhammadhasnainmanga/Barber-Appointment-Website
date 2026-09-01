@@ -57,7 +57,8 @@
     // as the rest of the site's [data-reveal] elements.
     revealEls.forEach((el) => el.classList.remove('is-visible'));
     void overlay.offsetHeight; // forces the browser to apply the reset above before re-adding the class
-
+    lookupResult.textContent = ``;
+    
     revealEls.forEach((el) => {
       const delay = Number(el.dataset.delay ?? 0);
       setTimeout(() => el.classList.add('is-visible'), delay);
