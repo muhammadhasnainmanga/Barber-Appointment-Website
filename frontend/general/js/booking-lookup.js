@@ -4,7 +4,7 @@
       <div class="modal-card">
         <button type="button" class="modal-close" aria-label="Close">&times;</button>
         <span class="eyebrow" data-reveal="load" data-delay="0">Check Booking</span>
-        <h3 data-reveal="load" data-delay="90">Find Your Appointment</h3>
+        <h3 data-reveal="load" data-delay="90">Find Your Booking</h3>
         <div class="form-group" data-reveal="load" data-delay="180">
           <label for="modalLookupPhone">Your Number</label>
           <input type="tel" id="modalLookupPhone" placeholder="03XX XXXXXXX" />

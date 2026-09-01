@@ -138,6 +138,24 @@ a {
   color: var(--white);
 }
 
+.btn-sm {
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  border-radius: 10px;
+  min-width: 92px;
+}
+
+.btn-danger {
+  background: #fff1f1;
+  border-color: rgba(220, 53, 69, 0.35);
+  color: #b42318;
+}
+
+.btn-danger:hover,
+.btn-danger:active {
+  background: #dc3545;
+  color: var(--white);
+}
 
 /* ---------- Eyebrow ---------- */
 .eyebrow {
@@ -223,7 +241,7 @@ a {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 20px;
 }
 
 .main-nav a {
@@ -627,3 +645,107 @@ a {
   line-height: 1.6;
 }
 
+/* ---------- Cancel-booking list items ---------- */
+.cancel-booking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--white);
+  box-shadow: 0 8px 18px -14px rgba(13, 13, 13, 0.18);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.cancel-booking-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: 0 10px 24px -16px rgba(13, 13, 13, 0.2);
+}
+
+.cancel-booking-item:last-child {
+  border-bottom: none;
+}
+
+.booking-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.cancel-booking-info {
+  min-width: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.cancel-booking-info strong {
+  display: block;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.cancel-booking-info .cell-muted {
+  color: var(--gray-500);
+}
+
+.cancel-booking-item .btn {
+  flex-shrink: 0;
+  width: auto;
+  padding: 10px 16px;
+  border-radius: 10px;
+  min-width: 92px;
+}
+
+.cancel-booking-item .btn-danger {
+  background: #fff1f1;
+  border-color: rgba(220, 53, 69, 0.35);
+  color: #b42318;
+}
+
+.cancel-booking-item .btn-danger:hover {
+  background: #dc3545;
+  color: var(--white);
+}
+
+.lookup-empty-state,
+.lookup-status-message {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--off-white);
+  color: var(--gray-700);
+  font-size: 0.9rem;
+}
+
+.cancel-confirm-panel {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.cancel-confirm-panel h3 {
+  margin: 10px 0 12px;
+}
+
+.cancel-confirm-panel p {
+  color: var(--gray-700);
+  margin: 10px 0 20px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.modal-actions .btn {
+  width: auto;
+  min-width: 150px;
+}

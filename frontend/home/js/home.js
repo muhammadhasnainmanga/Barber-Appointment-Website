@@ -41,7 +41,7 @@ async function loadServices() {
                     <span class="service-price">PKR ${s.price}</span>
                     <span>${s.duration}</span>
                   </div>
-                  <a class="btn btn-primary" href="appointment.html?service=${encodeURIComponent(s.name.toLowerCase())}">Book Now</a>
+                  <a class="btn btn-primary" href="../../../frontend/appointment/html/appoinment.html?type=appoinment&service=${s.id}">Book Now</a>
                 </div>`
               )
               .join(''); 

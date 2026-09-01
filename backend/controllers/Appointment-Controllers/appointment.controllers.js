@@ -108,7 +108,7 @@ const getBooking = async (req, res) => {
       const db = GetDb();
     
       const [rows] = await db.promise().query(
-        `SELECT service_name, date, time, type, status FROM bookings WHERE phone = ? ORDER BY date DESC`,
+        `SELECT id, service_name, date, time, type, status FROM bookings WHERE phone = ? ORDER BY date DESC`,
         [phone]
       );
       return res.status(200).json({ bookings: rows });
@@ -119,9 +119,29 @@ const getBooking = async (req, res) => {
   }
 }
 
+//for frontend deleting booking
+const deleteBooking = async (req, res) => {
+  try {
+    const {id} = req.params;
+
+    const db = GetDb();
+
+    await db.promise().query(
+      `DELETE FROM bookings where id = ?`,
+      [id]
+    );
+
+    return res.status(200).json({ message: "Booking cancelled successfully" });
+  } catch (error) {
+    console.log(error?.message || 'Error while deleting booking by id');
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
 module.exports = {
     getBlockDatesAndDays,
     getTimeforSelectedDate,
     postBooking,
-    getBooking
+    getBooking,
+    deleteBooking
 }

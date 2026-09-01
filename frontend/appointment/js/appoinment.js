@@ -108,17 +108,33 @@ async function populateServices() {
     opt.textContent = `${s.name} — PKR ${s.price} (${s.duration})`;
     serviceSelect.appendChild(opt);
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const preselectedServiceId = params.get('service');
+
+    if (preselectedServiceId) {
+      const matchExists = [...serviceSelect.options].find(
+        (opt) => opt.value === preselectedServiceId
+      );
+
+      if (matchExists) {
+        serviceSelect.value = preselectedServiceId;
+        updateSelectedServicePrice();
+      }
+    }
   }catch (error) {
     serviceSelect.innerHTML = '<option value="" disabled selected>Could not load services</option>';
     console.log("Error while getting services for appointment");
   }
 }
 
-serviceSelect.addEventListener('change', () => {
+function updateSelectedServicePrice() {
   const selected = serviceSelect.selectedOptions[0];
   const price = selected ? selected.dataset.price : null;
   amountValue.textContent = price ? `PKR ${price}` : 'PKR —';
-});
+}
+
+serviceSelect.addEventListener('change', updateSelectedServicePrice);
 
 // ---------- Date and time  ----------
 function generateTimes(start, end, durationMin) {
