@@ -91,7 +91,12 @@ function renderGallery() {
   if (galleryItems.length === 0) {
     galleryGrid.innerHTML = `
       <div class="gallery-empty-state" data-reveal data-delay="180">
-        <p>Abhi koi photo nahi hai — upar se pehli photo add karo.</p>
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <p>No gallery photos available yet.</p>
       </div>`;
     playReveal(galleryGrid);
     return;

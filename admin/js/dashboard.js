@@ -978,7 +978,7 @@ function renderOverridesTable() {
   const rows = dateOverrides.filter((o) => o.type === currentOverrideType);
 
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Koi override nahi — sab kuch normal weekly pattern follow karega.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No overrides yet.</td></tr>`;
     return;
   }
 
