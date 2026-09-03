@@ -1,3 +1,5 @@
+import { fetchWithCache } from "../../general/js/fetchWithCache.js";
+
 const typeToggle = document.getElementById('typeToggle');
 const serviceSelect = document.getElementById('service');
 const dateSelect = document.getElementById('date');
@@ -89,13 +91,13 @@ typeToggle.addEventListener('click', (e) => {
 // ---------- Populate Services (runs once) ----------
 async function populateServices() {
   try {
-    const response = await fetch('http://localhost:4000/api/v1/appointment/get-services', {
-      method: 'GET',
-      headers: {'Content-Type': 'application/json'}
-    });
+    const {data: services, isStale} = await fetchWithCache(
+      'cached_services',
+      'http://localhost:4000/api/v1/appointment/get-services', 
+      { method: 'GET', headers: {'Content-Type': 'application/json'} } 
+    );
 
-    const services = await response.json();
-    if(!response.ok || services.length === 0){
+    if(!services || services.length === 0){
       serviceSelect.innerHTML = '<option value="" disabled selected>No services are avaliable</option>';
       return;
     }

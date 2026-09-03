@@ -65,10 +65,10 @@
       <p>A few of the cuts walking out of the chair lately — swipe through.</p>
     </div>
 
-    <div class="stack-wrap">
+    <div class="stack-wrap" data-reveal="scroll">
       <div class="card-stack" id="cardStack"></div>
       <div class="ghost-layer" id="ghostLayer"></div>
-      <p class="stack-hint">Swipe or tap to see more →</p>
+      <p class="stack-hint" data-reveal="scroll">Swipe or tap to see more →</p>
     </div>
   </div>
 </section>
@@ -148,12 +148,13 @@
     </div>
   </footer>
 
+  <script type="module" src="../../general/js/fetchWithCache.js"></script>
   <script src="../js/stats-counter.js"></script>
-  <script src="../js/card-stack.js"></script>
+  <script type="module" src="../js/card-stack.js"></script>
   <script src="../../general/js/particles.js"></script>
   <script src="../../general/js/reveal.js"></script>
   <script src="../../general/js/booking-lookup.js"></script>
-  <script src="../js/home.js"></script>
+  <script type= "module" src="../js/home.js"></script>
   <script src="../../general/js/cancel-booking.js"></script>
 </body>
 </html>

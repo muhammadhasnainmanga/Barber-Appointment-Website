@@ -1,3 +1,5 @@
+import { fetchWithCache } from "../../general/js/fetchWithCache.js";
+
 const container = document.getElementById('cardStack');
 
 function renderGalleryState({
@@ -30,13 +32,13 @@ function renderGalleryState({
 
 async function getSlides() {
   try {
-    const response = await fetch('http://localhost:4000/api/v1/user-gallery/get-all', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      cache: 'no-store'
-    });
+    const {data: Gallery, isStale} = await fetchWithCache(
+      'cached_gallery',
+      'http://localhost:4000/api/v1/user-gallery/get-all', 
+      { method: 'GET', headers: { 'Content-Type': 'application/json' },}
+    );
 
-    if (!response.ok) {
+    if (!Gallery || Gallery.length === 0) {
       console.error('Gallery fetch failed:', response.status, response.statusText);
       renderGalleryState({
         title: 'Could not load gallery right now.',
@@ -47,7 +49,7 @@ async function getSlides() {
       return [];
     }
 
-    const payload = await response.json();
+    const payload = Gallery;
     const slides = Array.isArray(payload)
       ? payload
       : Array.isArray(payload.results)
